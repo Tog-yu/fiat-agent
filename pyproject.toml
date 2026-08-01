@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fiat-agent"
+version = "0.1.0"
+description = "法币业务内部使用的定制 Agent 系统 (fiat-agent)"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    # A1 skeleton only pins pydantic as the shared base.
+    # The full stack (FastAPI, LangGraph, LangChain, MCP SDK, SQLAlchemy,
+    # Alembic, asyncpg, redis, celery/temporal) is added incrementally in
+    # later phases per DEV_SPEC section 3.1.
+    "pydantic>=2.6",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["fiat_agent*", "apps*"]
+
+[tool.pytest.ini_options]
+# A1: minimal pytest base so `pytest -q tests/unit/test_smoke_imports.py` runs.
+# Phase A2 (测试基座) will expand fixtures, markers and conftest.
+pythonpath = ["."]
+testpaths = ["tests"]
+markers = [
+    "unit: 单元测试 (单模块逻辑)",
+    "integration: 集成测试 (模块协作)",
+    "e2e: 端到端测试 (完整业务链路)",
+]
