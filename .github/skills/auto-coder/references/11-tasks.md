@@ -118,7 +118,7 @@
   - 一个用户可绑定多个角色。
 - **测试方法**：`pytest -q tests/unit/test_user_models.py`。
 
-### [ ] B3：权限与数据范围模型
+### [~] B3：权限与数据范围模型
 
 - **目标**：实现工具权限、业务域、环境、collection 范围。
 - **修改文件**：
@@ -137,7 +137,7 @@
   - collection 范围可按角色过滤。
 - **测试方法**：`pytest -q tests/unit/test_rbac_policy.py`。
 
-### [ ] B4：权限校验服务
+### [~] B4：权限校验服务
 
 - **目标**：实现确定性 `can_execute`。
 - **修改文件**：
@@ -152,7 +152,7 @@
   - 高风险工具返回 approval_required。
 - **测试方法**：`pytest -q tests/unit/test_auth_policy.py`。
 
-### [ ] B5：审计服务
+### [~] B5：审计服务
 
 - **目标**：实现审计日志写入。
 - **修改文件**：
