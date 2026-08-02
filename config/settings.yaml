@@ -1,0 +1,51 @@
+# fiat-agent runtime configuration (DEV_SPEC §8).
+# Secrets are referenced by ENV var name (api_key_env) and never inlined.
+# `${VAR:-default}` is resolved at load time by load_settings().
+
+app:
+  name: fiat-agent
+  environment: ${FiatAgent_ENV:-dev}
+
+database:
+  url: postgresql+asyncpg://user:password@localhost:5432/fiat_agent
+
+redis:
+  url: redis://localhost:6379/0
+
+models:
+  default: gpt-4.1-mini
+  providers:
+    openai:
+      api_key_env: OPENAI_API_KEY
+    anthropic:
+      api_key_env: ANTHROPIC_API_KEY
+
+model_policies:
+  rag_qa:
+    model: gpt-4.1-mini
+  alert_diagnosis:
+    model: gpt-4.1
+  table_parse:
+    model: gpt-4.1
+
+mcp_servers:
+  rag:
+    name: modular-rag-mcp-server
+    transport: stdio
+    cwd: /Users/tog/Desktop/project/MODULAR-RAG-MCP-SERVER
+    command: python
+    args:
+      - -m
+      - src.mcp_server.server
+
+session:
+  max_context_tokens: 80000
+  compact_threshold_ratio: 0.75
+  jsonl_export_enabled: true
+
+tools:
+  default_timeout_seconds: 30
+  production_write_requires_approval: true
+
+event_stream:
+  transport: sse

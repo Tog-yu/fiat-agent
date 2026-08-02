@@ -19,7 +19,7 @@
   - `python -m apps.cli.main --help` 可运行。
 - **测试方法**：`pytest -q tests/unit/test_smoke_imports.py`。
 
-### [ ] A2：测试基座
+### [x] A2：测试基座
 
 - **目标**：建立 pytest、fixtures、markers。
 - **修改文件**：
@@ -31,7 +31,7 @@
   - 单元测试、集成测试、E2E markers 可用。
 - **测试方法**：`pytest -q tests/unit/test_smoke_imports.py`。
 
-### [ ] A3：Settings 配置加载
+### [x] A3：Settings 配置加载
 
 - **目标**：实现 YAML 配置加载和 fail-fast 校验。
 - **修改文件**：
@@ -48,7 +48,7 @@
   - 环境变量引用可解析。
 - **测试方法**：`pytest -q tests/unit/test_config_loading.py`。
 
-### [ ] A4：日志和错误模型
+### [x] A4：日志和错误模型
 
 - **目标**：统一结构化日志和业务错误类型。
 - **修改文件**：
@@ -66,7 +66,7 @@
   - 日志不输出敏感字段。
 - **测试方法**：`pytest -q tests/unit/test_errors.py`。
 
-### [ ] A5：基础数据契约
+### [x] A5：基础数据契约
 
 - **目标**：定义全局通用 schema。
 - **修改文件**：
