@@ -704,7 +704,7 @@ event_stream:
   - 测试使用临时数据库或测试 schema。
 - **测试方法**：`pytest -q tests/integration/test_db_connection.py`。
 
-### [ ] B2：用户与角色模型
+### [x] B2：用户与角色模型
 
 - **目标**：实现用户、角色、用户角色关系。
 - **修改文件**：
