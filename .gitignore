@@ -40,5 +40,10 @@ apps/web_console/.next/
 *.log
 .agent/
 
+# Local SQLite databases (tests use temp files; never commit real DBs)
+*.db
+*.sqlite3
+*.sqlite
+
 # Skill-generated spec hash (auto-coder re-writes it on every sync)
 .github/skills/auto-coder/.spec_hash

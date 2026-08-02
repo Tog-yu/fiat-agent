@@ -11,10 +11,17 @@ requires-python = ">=3.11"
 dependencies = [
     # A1 skeleton only pins pydantic as the shared base.
     # A3 adds PyYAML for settings loading (DEV_SPEC §3.1 / §8). The full stack
-    # (FastAPI, LangGraph, LangChain, MCP SDK, SQLAlchemy, Alembic, asyncpg,
-    # redis, celery/temporal) is added incrementally in later phases.
+    # is added incrementally per DEV_SPEC section 3.1.
     "pydantic>=2.6",
     "pyyaml>=6.0",
+    # Phase B1: async DB layer (SQLAlchemy 2.0) + Alembic migrations.
+    # Production uses PostgreSQL via asyncpg; tests use aiosqlite (no server).
+    # greenlet is required by SQLAlchemy's async extension.
+    "sqlalchemy>=2.0",
+    "alembic>=1.13",
+    "asyncpg>=0.29",
+    "aiosqlite>=0.20",
+    "greenlet>=3.0",
 ]
 
 [tool.setuptools.packages.find]

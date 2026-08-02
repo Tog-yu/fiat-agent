@@ -589,7 +589,7 @@ event_stream:
 | 阶段 | 任务数 | 状态 |
 |---|---:|---|
 | 阶段 A | 5 | [x] |
-| 阶段 B | 7 | [ ] |
+| 阶段 B | 7 | [~] |
 | 阶段 C | 7 | [ ] |
 | 阶段 D | 6 | [ ] |
 | 阶段 E | 6 | [ ] |
@@ -689,7 +689,7 @@ event_stream:
 
 ## 阶段 B：数据库、用户、权限和审计基础
 
-### B1：数据库连接与 migration
+### [x] B1：数据库连接与 migration
 
 - **目标**：接入 PostgreSQL 和 Alembic。
 - **修改文件**：
@@ -704,7 +704,7 @@ event_stream:
   - 测试使用临时数据库或测试 schema。
 - **测试方法**：`pytest -q tests/integration/test_db_connection.py`。
 
-### B2：用户与角色模型
+### [ ] B2：用户与角色模型
 
 - **目标**：实现用户、角色、用户角色关系。
 - **修改文件**：
@@ -721,7 +721,7 @@ event_stream:
   - 一个用户可绑定多个角色。
 - **测试方法**：`pytest -q tests/unit/test_user_models.py`。
 
-### B3：权限与数据范围模型
+### [ ] B3：权限与数据范围模型
 
 - **目标**：实现工具权限、业务域、环境、collection 范围。
 - **修改文件**：
@@ -740,7 +740,7 @@ event_stream:
   - collection 范围可按角色过滤。
 - **测试方法**：`pytest -q tests/unit/test_rbac_policy.py`。
 
-### B4：权限校验服务
+### [ ] B4：权限校验服务
 
 - **目标**：实现确定性 `can_execute`。
 - **修改文件**：
@@ -755,7 +755,7 @@ event_stream:
   - 高风险工具返回 approval_required。
 - **测试方法**：`pytest -q tests/unit/test_auth_policy.py`。
 
-### B5：审计服务
+### [ ] B5：审计服务
 
 - **目标**：实现审计日志写入。
 - **修改文件**：
@@ -771,7 +771,7 @@ event_stream:
   - 敏感字段可脱敏。
 - **测试方法**：`pytest -q tests/unit/test_audit_service.py`。
 
-### B6：审批模型
+### [ ] B6：审批模型
 
 - **目标**：实现审批单和审批策略。
 - **修改文件**：
@@ -789,7 +789,7 @@ event_stream:
   - L5 支持双人审批策略占位。
 - **测试方法**：`pytest -q tests/unit/test_approval_service.py`。
 
-### B7：用户和权限 API
+### [ ] B7：用户和权限 API
 
 - **目标**：暴露用户、角色、权限查询 API。
 - **修改文件**：
