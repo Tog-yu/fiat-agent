@@ -17,20 +17,16 @@ redis:
   url: redis://localhost:6379/0
 
 models:
-  default: gpt-4.1-mini
+  # 默认模型（未被路由策略显式覆盖时的兜底）。实际路由见 config/model_policies.yaml (D3)。
+  default: gpt-5.6-terra
   providers:
-    openai:
-      api_key_env: OPENAI_API_KEY
-    anthropic:
-      api_key_env: ANTHROPIC_API_KEY
-
-model_policies:
-  rag_qa:
-    model: gpt-4.1-mini
-  alert_diagnosis:
-    model: gpt-4.1
-  table_parse:
-    model: gpt-4.1
+    # 逻辑 provider 名需与 config/model_policies.yaml 中的 providers 一致。
+    gpt:
+      api_key_env: FIAT_MODEL_GPT_KEY
+    deepseek:
+      api_key_env: FIAT_MODEL_DEEPSEEK_KEY
+    local:
+      api_key_env: FIAT_MODEL_LOCAL_KEY
 
 mcp_servers:
   rag:

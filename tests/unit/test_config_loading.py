@@ -27,7 +27,7 @@ def test_load_default_settings():
     assert isinstance(settings, Settings)
     # 当前默认 SQLite（扩展点：PostgreSQL 通过 FIAT_DB_URL 切换）。
     assert settings.database.url.startswith("sqlite+aiosqlite://")
-    assert settings.models.default == "gpt-4.1-mini"
+    assert settings.models.default == "gpt-5.6-terra"
     assert settings.mcp_servers["rag"].name == "modular-rag-mcp-server"
 
 

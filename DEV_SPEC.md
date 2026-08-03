@@ -944,7 +944,7 @@ event_stream:
   - 不泄露 API key。
 - **测试方法**：`pytest -q tests/unit/test_openai_provider.py`。
 
-### D3：模型路由策略
+### [x] D3：模型路由策略
 
 - **目标**：按任务类型选择模型。
 - **修改文件**：
