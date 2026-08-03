@@ -39,7 +39,7 @@ LLM 负责理解意图、规划、调用工具和生成解释。生产写操作�
 法币 Agent 的实现：
 
 1. `LangGraph` 承载 Agent Loop 和 workflow graph。
-2. `PostgreSQL` 承载业务级 session event store。
+2. `PostgreSQL` 承载业务级 session event store（**可选扩展点**：当前默认 SQLite，见 §13 约定）。
 3. `MODULAR-RAG-MCP-SERVER` 承载 RAG。
 4. `Tool Gateway` 承载所有外部系统访问。
 5. `Auth / Approval / Audit` 承载安全边界。

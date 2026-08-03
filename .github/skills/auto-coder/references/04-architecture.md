@@ -25,7 +25,7 @@ Workflow Engine
 告警诊断 / 测试账号 / 返现对账 / 物流校验 / 审批等待
         ↓
 Session Memory Store
-PostgreSQL append-only events / parent_event_id / checkpoint / compaction
+PostgreSQL append-only events / parent_event_id / checkpoint / compaction（可选扩展点，当前主线用 SQLite）
         ↓
 Approval / Audit / Event Bus
 审批 / 审计 / SSE / WebSocket / Lark 通知

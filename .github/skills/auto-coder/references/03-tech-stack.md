@@ -23,8 +23,8 @@
 | Pydantic Settings | `2.14.2` | 是 | 当前稳定版，用于 YAML/env settings 载入和 fail-fast 校验。 |
 | SQLAlchemy | `2.0.51` | 是 | 当前稳定版，保留 SQLAlchemy 2.0 async ORM/Core 模式。 |
 | Alembic | `1.18.5` | 是 | 当前稳定版，与 SQLAlchemy 2.0 线配套。 |
-| PostgreSQL | `18.4` | 是 | `19` 仍是 beta；业务 session event store 使用 PostgreSQL 当前稳定主线。 |
-| asyncpg | `0.31.0` | 是 | PostgreSQL async driver，配合 `postgresql+asyncpg://` URL。 |
+| PostgreSQL | `18.4` | 可选（扩展点） | `19` 仍是 beta；业务 session event store 的扩展目标，当前主线用 SQLite，启用前需先确认（见 §13 约定）。 |
+| asyncpg | `0.31.0` | 可选（扩展点） | PostgreSQL async driver，配合 `postgresql+asyncpg://` URL；置于可选依赖 `[postgres]`。 |
 | Redis Server | `8.8.0` | 是 | 当前 GA 稳定线；`8.10-rc*` 不用于生产基线。 |
 | redis-py | `8.1.0` | 是 | 当前稳定 Python client；新代码显式设置 `legacy_responses=False`，减少 RESP2/RESP3 差异。 |
 | Celery | `5.6.3` | 是 | MVP 默认后台任务框架，部署和心智成本低，适合通知、审计异步写、轻量任务。 |

@@ -6,7 +6,8 @@ app:
   environment: dev
 
 database:
-  url: postgresql+asyncpg://user:password@localhost:5432/fiat_agent
+  # 当前默认 SQLite（低成本）；PostgreSQL 为可选扩展点，设 FIAT_DB_URL 切换。
+  url: ${FIAT_DB_URL:-sqlite+aiosqlite:///./data/fiat_agent.db}
 
 redis:
   url: redis://localhost:6379/0

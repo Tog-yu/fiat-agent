@@ -73,7 +73,7 @@ LLM 负责理解意图、规划、调用工具和生成解释。生产写操作�
 法币 Agent 的实现：
 
 1. `LangGraph` 承载 Agent Loop 和 workflow graph。
-2. `PostgreSQL` 承载业务级 session event store。
+2. `PostgreSQL` 承载业务级 session event store（**可选扩展点**：当前默认 SQLite，见 §13 约定）。
 3. `MODULAR-RAG-MCP-SERVER` 承载 RAG。
 4. `Tool Gateway` 承载所有外部系统访问。
 5. `Auth / Approval / Audit` 承载安全边界。
@@ -119,8 +119,8 @@ RAG 不在 `fiat-agent` 中重复实现。已有项目：
 | Pydantic Settings | `2.14.2` | 是 | 当前稳定版，用于 YAML/env settings 载入和 fail-fast 校验。 |
 | SQLAlchemy | `2.0.51` | 是 | 当前稳定版，保留 SQLAlchemy 2.0 async ORM/Core 模式。 |
 | Alembic | `1.18.5` | 是 | 当前稳定版，与 SQLAlchemy 2.0 线配套。 |
-| PostgreSQL | `18.4` | 是 | `19` 仍是 beta；业务 session event store 使用 PostgreSQL 当前稳定主线。 |
-| asyncpg | `0.31.0` | 是 | PostgreSQL async driver，配合 `postgresql+asyncpg://` URL。 |
+| PostgreSQL | `18.4` | 可选（扩展点） | `19` 仍是 beta；业务 session event store 的扩展目标，当前主线用 SQLite，启用前需先确认（见 §13 约定）。 |
+| asyncpg | `0.31.0` | 可选（扩展点） | PostgreSQL async driver，配合 `postgresql+asyncpg://` URL；置于可选依赖 `[postgres]`。 |
 | Redis Server | `8.8.0` | 是 | 当前 GA 稳定线；`8.10-rc*` 不用于生产基线。 |
 | redis-py | `8.1.0` | 是 | 当前稳定 Python client；新代码显式设置 `legacy_responses=False`，减少 RESP2/RESP3 差异。 |
 | Celery | `5.6.3` | 是 | MVP 默认后台任务框架，部署和心智成本低，适合通知、审计异步写、轻量任务。 |
@@ -235,7 +235,7 @@ Workflow Engine
 告警诊断 / 测试账号 / 返现对账 / 物流校验 / 审批等待
         ↓
 Session Memory Store
-PostgreSQL append-only events / parent_event_id / checkpoint / compaction
+PostgreSQL append-only events / parent_event_id / checkpoint / compaction（可选扩展点，当前主线用 SQLite）
         ↓
 Approval / Audit / Event Bus
 审批 / 审计 / SSE / WebSocket / Lark 通知
@@ -506,7 +506,8 @@ app:
   environment: dev
 
 database:
-  url: postgresql+asyncpg://user:password@localhost:5432/fiat_agent
+  # 当前默认 SQLite（低成本）；PostgreSQL 为可选扩展点，设 FIAT_DB_URL 切换。
+  url: ${FIAT_DB_URL:-sqlite+aiosqlite:///./data/fiat_agent.db}
 
 redis:
   url: redis://localhost:6379/0
@@ -691,7 +692,7 @@ event_stream:
 
 ### [x] B1：数据库连接与 migration
 
-- **目标**：接入 PostgreSQL 和 Alembic。
+- **目标**：接入数据库（Alembic migration + SQLAlchemy 2.0 async）。当前默认 SQLite（低成本）；PostgreSQL 为可选扩展点，按 §13 约定实现前需确认。
 - **修改文件**：
   - `fiat_agent/db.py`
   - `migrations/env.py`
@@ -1609,7 +1610,12 @@ event_stream:
 
 ## 13. 后续扩展
 
-### 13.1 多 Agent 并行诊断
+> **扩展点处理约定（全局适用）**
+> - 所有「待扩展的点」（如 PostgreSQL、Pi Extension、多 Agent 并行、生产执行能力、Agent 回放评测等）统一标记为**可选**。
+> - 实现顺序排在主线功能（A–K 阶段）全部完成**之后**，即**最后实现**。
+> - 任何扩展点动手实现**之前必须先与用户确认（实现之前先询问）**，不得自行推进。
+
+### 13.1 多 Agent 并行诊断（可选扩展点）
 
 在告警诊断中拆分：
 
@@ -1619,7 +1625,7 @@ event_stream:
 4. Release Agent。
 5. Supervisor Agent。
 
-### 13.2 生产执行能力
+### 13.2 生产执行能力（可选扩展点）
 
 返现和物流从 dry-run 演进到受控生产提交：
 
@@ -1629,7 +1635,7 @@ event_stream:
 4. 执行幂等。
 5. 失败补偿。
 
-### 13.3 Agent 回放和评测
+### 13.3 Agent 回放和评测（可选扩展点）
 
 基于 JSONL 导出：
 
@@ -1638,7 +1644,7 @@ event_stream:
 3. 对比不同模型策略。
 4. 回归测试 prompt 和 tool schema。
 
-### 13.4 Pi Extension
+### 13.4 Pi Extension（可选扩展点）
 
 实现 `.pi/extensions/fiat-agent.ts`：
 

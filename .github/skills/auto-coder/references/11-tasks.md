@@ -88,7 +88,7 @@
 
 ### [x] B1：数据库连接与 migration
 
-- **目标**：接入 PostgreSQL 和 Alembic。
+- **目标**：接入数据库（Alembic migration + SQLAlchemy 2.0 async）。当前默认 SQLite（低成本）；PostgreSQL 为可选扩展点，按 §13 约定实现前需确认。
 - **修改文件**：
   - `fiat_agent/db.py`
   - `migrations/env.py`
