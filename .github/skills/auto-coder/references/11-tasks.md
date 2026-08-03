@@ -432,7 +432,7 @@
   - MCP isError 时不进入可信上下文。
 - **测试方法**：`pytest -q tests/integration/test_rag_mcp_query.py`。
 
-### [ ] E4：MCP Content Parser
+### [x] E4：MCP Content Parser
 
 - **目标**：解析 TextContent、ImageContent 和引用。
 - **修改文件**：
