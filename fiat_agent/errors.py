@@ -49,3 +49,14 @@ class ApprovalRequiredError(FiatAgentError):
     """Action is blocked until a human approval is granted (§2.2 state machine)."""
 
     code = "approval_required"
+
+
+class ToolContractViolation(FiatAgentError):
+    """A tool-call argument violated the tool's safe contract (F4-F7).
+
+    e.g. an ES query against a non-whitelisted index, or arbitrary SQL. This is
+    a deterministic validation reject (distinct from execution failure) so the
+    gateway can surface a clear, non-leaky reason.
+    """
+
+    code = "tool_contract_violation"
