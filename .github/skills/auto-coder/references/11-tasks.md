@@ -584,7 +584,7 @@
   - RAG 结果带引用进入上下文。
 - **测试方法**：`pytest -q tests/unit/test_context_builder.py`。
 
-### [ ] G4：Planning 节点
+### [x] G4：Planning 节点
 
 - **目标**：生成结构化执行计划。
 - **修改文件**：
