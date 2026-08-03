@@ -393,7 +393,7 @@
 
 ## 阶段 E：MCP RAG Client 接入
 
-### E1：MCP Client 基础协议
+### [x] E1：MCP Client 基础协议
 
 - **目标**：实现 stdio MCP Client。
 - **修改文件**：

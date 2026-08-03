@@ -593,7 +593,7 @@ event_stream:
 | 阶段 B | 7 | [x] |
 | 阶段 C | 7 | [x] |
 | 阶段 D | 6 | [x] |
-| 阶段 E | 6 | [ ] |
+| 阶段 E | 6 | [~] |
 | 阶段 F | 7 | [ ] |
 | 阶段 G | 8 | [ ] |
 | 阶段 H | 8 | [ ] |
@@ -997,7 +997,7 @@ event_stream:
 
 ## 阶段 E：MCP RAG Client 接入
 
-### E1：MCP Client 基础协议
+### [x] E1：MCP Client 基础协议
 
 - **目标**：实现 stdio MCP Client。
 - **修改文件**：
