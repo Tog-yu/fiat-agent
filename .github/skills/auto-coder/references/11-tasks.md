@@ -595,7 +595,7 @@
   - 结构不合法时要求模型重试或降级。
 - **测试方法**：`pytest -q tests/unit/test_planning_node.py`。
 
-### [ ] G5：Tool 节点
+### [x] G5：Tool 节点
 
 - **目标**：执行 function call / tool call。
 - **修改文件**：
