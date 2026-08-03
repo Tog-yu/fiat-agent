@@ -869,7 +869,7 @@ event_stream:
   - checkpoint 与 session_id 绑定。
 - **测试方法**：`pytest -q tests/integration/test_graph_checkpoint.py`。
 
-### C5：Context Compaction
+### [x] C5：Context Compaction
 
 - **目标**：实现上下文压缩节点。
 - **修改文件**：
