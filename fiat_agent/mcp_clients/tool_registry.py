@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from fiat_agent.mcp_clients.rag_mcp_client import RagMcpClient
+from fiat_agent.mcp_clients.rag_mcp_client import RagMcpClient, RagMcpHealthStatus
 from fiat_agent.tools.schemas import ToolDefinition
 
 
@@ -48,3 +48,29 @@ class McpToolRegistry:
 
     def by_name(self, name: str) -> ToolDefinition | None:
         return next((t for t in self._tools if t.name == name), None)
+
+
+async def load_rag_tools(
+    config: McpServerConfig,
+) -> tuple[list[ToolDefinition], RagMcpHealthStatus]:
+    """Start the RAG MCP server, sync its tools, and report health.
+
+    On any startup/initialize failure the tools list is empty and the status is
+    ``"unavailable"`` — i.e. RAG tools are disabled rather than crashing the
+    caller (DEV_SPEC E6 graceful degradation). The server subprocess is always
+    torn down, even on failure.
+    """
+    client = RagMcpClient(config)
+    try:
+        await client.start()
+        await client.initialize()
+        tools = await sync_mcp_tools(client)
+        return tools, RagMcpHealthStatus(
+            status="ok", server=config.name, tools=len(tools)
+        )
+    except Exception as e:  # noqa: BLE001 - degrade gracefully, surface reason
+        return [], RagMcpHealthStatus(
+            status="unavailable", server=config.name, error=str(e)
+        )
+    finally:
+        await client.close()

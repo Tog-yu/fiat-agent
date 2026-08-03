@@ -455,7 +455,7 @@
   - collection、doc_id、chunk_id 可追踪。
 - **测试方法**：`pytest -q tests/unit/test_rag_context_merge.py`。
 
-### [ ] E6：MCP RAG 健康检查和降级
+### [x] E6：MCP RAG 健康检查和降级
 
 - **目标**：MCP Server 异常时优雅降级。
 - **修改文件**：

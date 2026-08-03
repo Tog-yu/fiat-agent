@@ -22,12 +22,22 @@ from mcp.client.stdio import StdioServerParameters, stdio_client
 
 from fiat_agent.config import McpServerConfig, Settings, load_settings
 from fiat_agent.errors import FiatAgentError, ToolExecutionError
+from fiat_agent.schemas.common import FiatModel
 
 
 class McpClientNotStartedError(FiatAgentError):
     """Raised when a session operation runs before start()/initialize()."""
 
     code = "mcp_client_not_started"
+
+
+class RagMcpHealthStatus(FiatModel):
+    """Health of the RAG MCP server connection (DEV_SPEC E6)."""
+
+    status: str = "unknown"  # "ok" | "unavailable" | "disabled"
+    server: str = ""
+    error: str = ""
+    tools: int = 0
 
 
 class RagMcpClient:
