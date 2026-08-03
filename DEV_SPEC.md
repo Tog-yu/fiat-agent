@@ -838,7 +838,7 @@ event_stream:
   - 路径回溯顺序稳定。
 - **测试方法**：`pytest -q tests/integration/test_session_store.py`。
 
-### C3：回退和分支
+### [x] C3：回退和分支
 
 - **目标**：实现 Pi-style 会话树。
 - **修改文件**：
