@@ -606,7 +606,7 @@
   - 权限拒绝不会执行工具。
 - **测试方法**：`pytest -q tests/integration/test_tool_node.py`。
 
-### [ ] G6：Approval 节点
+### [x] G6：Approval 节点
 
 - **目标**：高风险任务进入等待审批。
 - **修改文件**：
