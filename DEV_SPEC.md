@@ -1131,7 +1131,7 @@ event_stream:
   - 敏感字段脱敏。
 - **测试方法**：`pytest -q tests/unit/test_db_tools.py`。
 
-### [ ] F6：Lark 工具契约
+### [x] F6：Lark 工具契约
 
 - **目标**：实现 Lark 消息和审批卡片工具。
 - **修改文件**：
