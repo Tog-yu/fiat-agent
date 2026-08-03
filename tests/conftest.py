@@ -77,3 +77,32 @@ def mock_llm() -> MockLLM:
 def fake_backend() -> FakeBackend:
     """A fake production backend that records (but does not perform) writes."""
     return FakeBackend()
+
+
+@pytest.fixture
+def rag_server_config():
+    """Runnable `McpServerConfig` for the real MODULAR-RAG-MCP-SERVER, or None.
+
+    The shipped settings use ``command: python``, but the RAG server's deps live
+    in its own ``.venv``; we prefer that interpreter so the server can actually
+    start in this local dev environment. Returns ``None`` when the server
+    directory or its venv interpreter is absent (tests should skip).
+    """
+    from fiat_agent.config import McpServerConfig, load_settings
+    from pathlib import Path
+
+    base = load_settings().mcp_servers.get("rag")
+    if base is None or not base.cwd:
+        return None
+    cwd = Path(base.cwd)
+    if not cwd.exists():
+        return None
+    venv_python = cwd / ".venv" / "bin" / "python"
+    command = str(venv_python) if venv_python.exists() else (base.command or "python")
+    return McpServerConfig(
+        name=base.name,
+        transport=base.transport,
+        cwd=str(cwd),
+        command=command,
+        args=list(base.args),
+    )

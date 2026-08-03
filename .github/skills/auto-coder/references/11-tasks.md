@@ -408,7 +408,7 @@
   - stdout 只处理 JSON-RPC，stderr 作为日志。
 - **测试方法**：`pytest -q tests/integration/test_rag_mcp_initialize.py`。
 
-### E2：tools/list 同步
+### [x] E2：tools/list 同步
 
 - **目标**：获取 RAG MCP 工具 schema。
 - **修改文件**：
@@ -419,7 +419,7 @@
   - schema 可转换成内部 ToolDefinition。
 - **测试方法**：`pytest -q tests/integration/test_rag_mcp_tools_list.py`。
 
-### E3：query_knowledge_hub 调用
+### [ ] E3：query_knowledge_hub 调用
 
 - **目标**：封装知识库查询。
 - **修改文件**：
@@ -432,7 +432,7 @@
   - MCP isError 时不进入可信上下文。
 - **测试方法**：`pytest -q tests/integration/test_rag_mcp_query.py`。
 
-### E4：MCP Content Parser
+### [ ] E4：MCP Content Parser
 
 - **目标**：解析 TextContent、ImageContent 和引用。
 - **修改文件**：
@@ -443,7 +443,7 @@
   - 图片内容不直接塞入普通文本上下文。
 - **测试方法**：`pytest -q tests/unit/test_mcp_content_parser.py`。
 
-### E5：RAG Context Merge
+### [ ] E5：RAG Context Merge
 
 - **目标**：把 RAG 检索结果合并进 Agent Context。
 - **修改文件**：
@@ -455,7 +455,7 @@
   - collection、doc_id、chunk_id 可追踪。
 - **测试方法**：`pytest -q tests/unit/test_rag_context_merge.py`。
 
-### E6：MCP RAG 健康检查和降级
+### [ ] E6：MCP RAG 健康检查和降级
 
 - **目标**：MCP Server 异常时优雅降级。
 - **修改文件**：
@@ -469,7 +469,7 @@
 
 ## 阶段 F：Tool Gateway 与业务工具契约
 
-### F1：工具定义模型
+### [ ] F1：工具定义模型
 
 - **目标**：定义 ToolDefinition。
 - **修改文件**：
@@ -479,7 +479,7 @@
   - 工具包含 name、description、input_schema、risk_level、approval_required。
 - **测试方法**：`pytest -q tests/unit/test_tool_definition.py`。
 
-### F2：工具注册中心
+### [ ] F2：工具注册中心
 
 - **目标**：统一注册业务工具和 MCP 工具。
 - **修改文件**：
@@ -490,7 +490,7 @@
   - 可按角色和环境过滤。
 - **测试方法**：`pytest -q tests/unit/test_tool_registry.py`。
 
-### F3：Tool Gateway 执行入口
+### [ ] F3：Tool Gateway 执行入口
 
 - **目标**：实现工具调用总入口。
 - **修改文件**：
@@ -504,7 +504,7 @@
   - 失败有统一错误结构。
 - **测试方法**：`pytest -q tests/unit/test_tool_gateway.py`。
 
-### F4：ES 只读工具契约
+### [ ] F4：ES 只读工具契约
 
 - **目标**：实现告警日志查询工具壳。
 - **修改文件**：
@@ -515,7 +515,7 @@
   - 不允许任意 ES DSL。
 - **测试方法**：`pytest -q tests/unit/test_es_tools.py`。
 
-### F5：DB 只读工具契约
+### [ ] F5：DB 只读工具契约
 
 - **目标**：实现数据库只读查询工具壳。
 - **修改文件**：
@@ -527,7 +527,7 @@
   - 敏感字段脱敏。
 - **测试方法**：`pytest -q tests/unit/test_db_tools.py`。
 
-### F6：Lark 工具契约
+### [ ] F6：Lark 工具契约
 
 - **目标**：实现 Lark 消息和审批卡片工具。
 - **修改文件**：
@@ -539,7 +539,7 @@
   - mock SDK 测试通过。
 - **测试方法**：`pytest -q tests/unit/test_lark_tools.py`。
 
-### F7：测试环境工具契约
+### [ ] F7：测试环境工具契约
 
 - **目标**：实现测试账号、充值、KYC 工具壳。
 - **修改文件**：
@@ -552,7 +552,7 @@
 
 ## 阶段 G：LangGraph Agent Orchestrator
 
-### G1：AgentState 定义
+### [ ] G1：AgentState 定义
 
 - **目标**：定义 LangGraph 状态对象。
 - **修改文件**：
@@ -562,7 +562,7 @@
   - 包含 actor、session、messages、task_type、tool_results、approval_state。
 - **测试方法**：`pytest -q tests/unit/test_agent_state.py`。
 
-### G2：任务分类节点
+### [ ] G2：任务分类节点
 
 - **目标**：识别任务类型。
 - **修改文件**：
@@ -572,7 +572,7 @@
   - 能识别 rag_qa、alert_diagnosis、test_env_automation、cashback_reconcile、logistics_validation。
 - **测试方法**：`pytest -q tests/unit/test_task_classifier.py`。
 
-### G3：Context Builder 节点
+### [ ] G3：Context Builder 节点
 
 - **目标**：组装系统提示词、权限、skill、memory、tool schema。
 - **修改文件**：
@@ -584,7 +584,7 @@
   - RAG 结果带引用进入上下文。
 - **测试方法**：`pytest -q tests/unit/test_context_builder.py`。
 
-### G4：Planning 节点
+### [ ] G4：Planning 节点
 
 - **目标**：生成结构化执行计划。
 - **修改文件**：
@@ -595,7 +595,7 @@
   - 结构不合法时要求模型重试或降级。
 - **测试方法**：`pytest -q tests/unit/test_planning_node.py`。
 
-### G5：Tool 节点
+### [ ] G5：Tool 节点
 
 - **目标**：执行 function call / tool call。
 - **修改文件**：
@@ -606,7 +606,7 @@
   - 权限拒绝不会执行工具。
 - **测试方法**：`pytest -q tests/integration/test_tool_node.py`。
 
-### G6：Approval 节点
+### [ ] G6：Approval 节点
 
 - **目标**：高风险任务进入等待审批。
 - **修改文件**：
@@ -617,7 +617,7 @@
   - approval_requested 事件写入 session。
 - **测试方法**：`pytest -q tests/unit/test_approval_node.py`。
 
-### G7：Final Answer 节点
+### [ ] G7：Final Answer 节点
 
 - **目标**：生成最终报告。
 - **修改文件**：
@@ -628,7 +628,7 @@
   - 引用来源保留。
 - **测试方法**：`pytest -q tests/unit/test_final_answer_node.py`。
 
-### G8：Graph 编排
+### [ ] G8：Graph 编排
 
 - **目标**：串联完整 LangGraph。
 - **修改文件**：
@@ -641,7 +641,7 @@
 
 ## 阶段 H：业务 Workflows
 
-### H1：Domain Skill 加载
+### [ ] H1：Domain Skill 加载
 
 - **目标**：实现业务技能包加载。
 - **修改文件**：
@@ -652,7 +652,7 @@
   - 不同 task_type 加载不同 prompt、工具和输出 schema。
 - **测试方法**：`pytest -q tests/unit/test_domain_skill_loader.py`。
 
-### H2：RAG 问答 workflow
+### [ ] H2：RAG 问答 workflow
 
 - **目标**：实现法币知识问答。
 - **修改文件**：
@@ -664,7 +664,7 @@
   - 无依据时拒答。
 - **测试方法**：`pytest -q tests/e2e/test_rag_qa_workflow.py`。
 
-### H3：告警诊断 workflow
+### [ ] H3：告警诊断 workflow
 
 - **目标**：实现告警日志排查。
 - **修改文件**：
@@ -676,7 +676,7 @@
   - 可发送 Lark 通知。
 - **测试方法**：`pytest -q tests/e2e/test_alert_diagnosis_workflow.py`。
 
-### H4：测试账号 workflow
+### [ ] H4：测试账号 workflow
 
 - **目标**：实现测试环境自动化。
 - **修改文件**：
@@ -687,7 +687,7 @@
   - 仅测试环境可执行。
 - **测试方法**：`pytest -q tests/e2e/test_test_automation_workflow.py`。
 
-### H5：返现表格解析
+### [ ] H5：返现表格解析
 
 - **目标**：解析 Excel/CSV 返现文件。
 - **修改文件**：
@@ -698,7 +698,7 @@
   - 重复记录和金额格式异常可识别。
 - **测试方法**：`pytest -q tests/unit/test_cashback_parse.py`。
 
-### H6：返现对账 dry-run
+### [ ] H6：返现对账 dry-run
 
 - **目标**：生成返现对账报告和变更计划。
 - **修改文件**：
@@ -709,7 +709,7 @@
   - 只生成 dry-run，不生产写入。
 - **测试方法**：`pytest -q tests/e2e/test_cashback_reconcile_workflow.py`。
 
-### H7：物流表格解析和状态机
+### [ ] H7：物流表格解析和状态机
 
 - **目标**：实现物流字段校验和状态流转校验。
 - **修改文件**：
@@ -721,7 +721,7 @@
   - 地址、单号、卡号异常可识别。
 - **测试方法**：`pytest -q tests/unit/test_logistics_state_machine.py`。
 
-### H8：审批后执行占位
+### [ ] H8：审批后执行占位
 
 - **目标**：为第二阶段生产提交预留接口。
 - **修改文件**：
@@ -735,7 +735,7 @@
 
 ## 阶段 I：Entry Adapters
 
-### I1：FastAPI Agent API
+### [ ] I1：FastAPI Agent API
 
 - **目标**：实现会话和消息 API。
 - **修改文件**：
@@ -747,7 +747,7 @@
   - `GET /api/agent/sessions/:id/events`
 - **测试方法**：`pytest -q tests/integration/test_agent_api.py`。
 
-### I2：RAG 代理 API
+### [ ] I2：RAG 代理 API
 
 - **目标**：暴露 RAG MCP 代理接口。
 - **修改文件**：
@@ -759,7 +759,7 @@
   - `GET /api/rag/documents/:id/summary`
 - **测试方法**：`pytest -q tests/integration/test_rag_api.py`。
 
-### I3：CLI
+### [ ] I3：CLI
 
 - **目标**：实现 `fiat-agent` 命令。
 - **修改文件**：
@@ -774,7 +774,7 @@
   - chat 模式可多轮。
 - **测试方法**：`pytest -q tests/e2e/test_cli.py`。
 
-### I4：Lark Bot
+### [ ] I4：Lark Bot
 
 - **目标**：接入 Lark 消息和审批回调。
 - **修改文件**：
@@ -786,7 +786,7 @@
   - 可处理审批卡片回调。
 - **测试方法**：`pytest -q tests/integration/test_lark_bot.py`。
 
-### I5：Fiat MCP Adapter
+### [ ] I5：Fiat MCP Adapter
 
 - **目标**：可选，把 fiat-agent 暴露为 MCP Server 供 Claude Code 调用。
 - **修改文件**：
@@ -799,7 +799,7 @@
 
 ## 阶段 J：React Web Console
 
-### J1：Web Console 骨架
+### [ ] J1：Web Console 骨架
 
 - **目标**：建立 React / Next.js 项目。
 - **修改文件**：
@@ -811,7 +811,7 @@
   - 可读取 `/api/users/me`。
 - **测试方法**：`npm run check` 或前端项目本地检查命令。
 
-### J2：会话列表和聊天页
+### [ ] J2：会话列表和聊天页
 
 - **目标**：展示会话列表、消息流、输入框。
 - **修改文件**：
@@ -823,7 +823,7 @@
   - 可展示流式响应。
 - **测试方法**：前端组件测试或 Playwright 冒烟。
 
-### J3：工具调用轨迹页
+### [ ] J3：工具调用轨迹页
 
 - **目标**：展示 function call 和 tool result。
 - **修改文件**：
@@ -833,7 +833,7 @@
   - 失败和审批等待状态清晰。
 - **测试方法**：组件测试。
 
-### J4：RAG 引用展示
+### [ ] J4：RAG 引用展示
 
 - **目标**：展示 MCP RAG 来源和引用。
 - **修改文件**：
@@ -843,7 +843,7 @@
   - 图片引用不挤压正文。
 - **测试方法**：组件测试。
 
-### J5：审批和 dry-run 页面
+### [ ] J5：审批和 dry-run 页面
 
 - **目标**：展示审批单和 dry-run 变更计划。
 - **修改文件**：
@@ -855,7 +855,7 @@
   - 参数摘要不可被页面篡改。
 - **测试方法**：Playwright 冒烟。
 
-### J6：审计查询页面
+### [ ] J6：审计查询页面
 
 - **目标**：展示审计日志和工具统计。
 - **修改文件**：
@@ -868,7 +868,7 @@
 
 ## 阶段 K：Observability、Evaluation 和 E2E 收口
 
-### K1：Event Bus
+### [ ] K1：Event Bus
 
 - **目标**：实现事件广播。
 - **修改文件**：
@@ -879,7 +879,7 @@
   - session event、tool event、approval event 都可广播。
 - **测试方法**：`pytest -q tests/unit/test_event_bus.py`。
 
-### K2：SSE / WebSocket
+### [ ] K2：SSE / WebSocket
 
 - **目标**：对前端输出实时事件。
 - **修改文件**：
@@ -891,7 +891,7 @@
   - 断线重连可按 cursor 续传。
 - **测试方法**：`pytest -q tests/integration/test_event_stream.py`。
 
-### K3：Agent Trace
+### [ ] K3：Agent Trace
 
 - **目标**：记录 agent 执行链路。
 - **修改文件**：
@@ -903,7 +903,7 @@
   - 可定位失败节点。
 - **测试方法**：`pytest -q tests/integration/test_agent_trace.py`。
 
-### K4：Agent Eval 数据集
+### [ ] K4：Agent Eval 数据集
 
 - **目标**：建立最小评测集。
 - **修改文件**：
@@ -914,7 +914,7 @@
   - 输出稳定结构。
 - **测试方法**：`pytest -q tests/e2e/test_agent_eval.py`。
 
-### K5：端到端验收
+### [ ] K5：端到端验收
 
 - **目标**：跑通 MVP 主链路。
 - **修改文件**：
@@ -926,7 +926,7 @@
   - 权限拒绝和审批等待通过。
 - **测试方法**：`pytest -q tests/e2e/test_mvp_flows.py`。
 
-### K6：README 和部署文档
+### [ ] K6：README 和部署文档
 
 - **目标**：形成可复现项目。
 - **修改文件**：
