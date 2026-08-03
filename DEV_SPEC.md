@@ -1047,7 +1047,7 @@ event_stream:
   - 图片内容不直接塞入普通文本上下文。
 - **测试方法**：`pytest -q tests/unit/test_mcp_content_parser.py`。
 
-### [ ] E5：RAG Context Merge
+### [x] E5：RAG Context Merge
 
 - **目标**：把 RAG 检索结果合并进 Agent Context。
 - **修改文件**：
