@@ -16,12 +16,13 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from fiat_agent.config import DatabaseConfig, Settings
+from fiat_agent.models.base import Base
 
 config = context.config
 
-# target_metadata is None at B1 (no ORM models yet); migrations create the
-# empty schema scaffold. Later phases set this once models are declared.
-target_metadata = None
+# C1: ORM models are now declared (users, sessions, ...). Point Alembic at the
+# shared metadata so ``alembic revision --autogenerate`` can diff against it.
+target_metadata = Base.metadata
 
 
 def get_url() -> str:
