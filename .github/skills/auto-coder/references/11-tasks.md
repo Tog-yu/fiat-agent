@@ -490,7 +490,7 @@
   - 可按角色和环境过滤。
 - **测试方法**：`pytest -q tests/unit/test_tool_registry.py`。
 
-### [ ] F3：Tool Gateway 执行入口
+### [x] F3：Tool Gateway 执行入口
 
 - **目标**：实现工具调用总入口。
 - **修改文件**：
