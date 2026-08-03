@@ -13,14 +13,19 @@ Both accept the same flexible ``tool_definition`` input:
 * a Pydantic ``BaseModel`` class or instance (its ``model_json_schema`` is used),
 * an MCP ``tools/list`` item (``{"name", "description", "inputSchema"}``),
 * or a plain dict already in canonical / OpenAI / Anthropic shape.
+
+Phase D5 adds :func:`to_tool_result_message`, which turns a normalized tool
+execution outcome back into a chat message the model can consume.
 """
 
 from __future__ import annotations
 
-from typing import Any
+from enum import Enum
+from typing import Any, Optional
 
 from pydantic import BaseModel
 
+from fiat_agent.models.base import ChatMessage
 from fiat_agent.tools.schemas import ToolDefinition
 
 
@@ -99,3 +104,47 @@ def to_anthropic_tool_schema(tool_definition: Any) -> dict[str, Any]:
         "description": description,
         "input_schema": schema,
     }
+
+
+# --- Function-call result -> model message (phase D5, DEV_SPEC D5) ---------
+
+
+class ToolResultStatus(str, Enum):
+    """Outcome of a tool invocation."""
+
+    SUCCESS = "success"
+    ERROR = "error"
+    PENDING_APPROVAL = "pending_approval"
+
+
+class ToolResult(BaseModel):
+    """Normalized tool execution outcome.
+
+    ``content`` is the model-facing summary (already safe to show). ``raw`` holds
+    the verbose/sensitive payload for logging/audit only and is *never* placed
+    into the message sent back to the model (DEV_SPEC D5: no sensitive raw leak).
+    """
+
+    tool_call_id: str
+    name: str
+    status: ToolResultStatus
+    content: str = ""
+    error: Optional[str] = None
+    raw: Optional[Any] = None
+
+
+def to_tool_result_message(result: ToolResult) -> ChatMessage:
+    """Build the chat message that feeds a tool result back to the model.
+
+    Returns a ``role="tool"`` message for every outcome:
+    success -> the (safe) ``content``; error -> a short failure note (no raw
+    traceback); pending_approval -> a deferral note. The ``raw`` field is never
+    used, so sensitive original results stay out of the model context.
+    """
+    if result.status == ToolResultStatus.SUCCESS:
+        content = result.content or "(tool returned no output)"
+    elif result.status == ToolResultStatus.ERROR:
+        content = f"Tool '{result.name}' failed: {result.error or 'unknown error'}"
+    else:  # PENDING_APPROVAL
+        content = f"Tool '{result.name}' is awaiting approval; execution deferred."
+    return ChatMessage(role="tool", content=content, tool_call_id=result.tool_call_id)

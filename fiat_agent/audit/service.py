@@ -8,6 +8,7 @@ secrets never enter the audit trail.
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from typing import Any, Optional
 from uuid import uuid4
 
 from fiat_agent.audit.repository import (
@@ -17,6 +18,7 @@ from fiat_agent.audit.repository import (
 )
 from fiat_agent.auth.policy import PolicyDecision
 from fiat_agent.logging import redact_sensitive
+from fiat_agent.models.base import TokenUsage
 from fiat_agent.schemas.common import ActorContext
 
 
@@ -110,4 +112,53 @@ class AuditService:
             allowed=(outcome == "approved"),
             reason=reason,
             metadata={"approval_id": approval_id, "outcome": outcome},
+        )
+
+    async def record_model_usage(
+        self,
+        *,
+        task_type: Optional[str],
+        model: str,
+        usage: TokenUsage,
+        session_id: Optional[str] = None,
+    ) -> AuditEvent:
+        """Record a single model-call token usage (DEV_SPEC D6).
+
+        Emitted by :class:`~fiat_agent.models.gateway.ModelGateway` via its
+        ``audit_sink`` on every chat/stream call. Stored under the ``model_usage``
+        event type so it can later be aggregated per task.
+
+        ``usage`` is serialized via ``model_dump()``; its keys (``prompt_tokens``,
+        ``completion_tokens``, ``total_tokens``) are not in ``SENSITIVE_KEYS``, so
+        :func:`fiat_agent.logging.redact_sensitive` leaves the values intact.
+        """
+        return await self.record_event(
+            type="model_usage",
+            tool_name=model,
+            action="chat",
+            metadata={
+                "task_type": task_type,
+                "model": model,
+                "session_id": session_id,
+                "usage": usage.model_dump(),
+            },
+        )
+
+    async def usage_by_task(self, task_type: str) -> TokenUsage:
+        """Aggregate token usage for a task across all recorded model calls."""
+        events = await self._repo.list(limit=1_000_000)
+        prompt = completion = total = 0
+        for ev in events:
+            if ev.type != "model_usage":
+                continue
+            if ev.metadata.get("task_type") != task_type:
+                continue
+            u = ev.metadata.get("usage", {})
+            prompt += int(u.get("prompt_tokens", 0) or 0)
+            completion += int(u.get("completion_tokens", 0) or 0)
+            total += int(u.get("total_tokens", 0) or 0)
+        return TokenUsage(
+            prompt_tokens=prompt,
+            completion_tokens=completion,
+            total_tokens=total,
         )

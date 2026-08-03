@@ -368,7 +368,7 @@
   - MCP tools/list schema 可转换。
 - **测试方法**：`pytest -q tests/unit/test_function_schema.py`。
 
-### D5：Function Call 结果回灌
+### [x] D5：Function Call 结果回灌
 
 - **目标**：实现工具结果转换为模型消息。
 - **修改文件**：
@@ -379,7 +379,7 @@
   - 不把敏感原始结果直接暴露给模型。
 - **测试方法**：`pytest -q tests/unit/test_function_result_messages.py`。
 
-### D6：成本和 token 统计
+### [x] D6：成本和 token 统计
 
 - **目标**：记录模型调用 usage。
 - **修改文件**：
