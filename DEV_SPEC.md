@@ -958,7 +958,7 @@ event_stream:
   - fallback 可配置。
 - **测试方法**：`pytest -q tests/unit/test_model_routing.py`。
 
-### D4：Function Call schema 生成
+### [x] D4：Function Call schema 生成
 
 - **目标**：把工具定义转换成模型可用 function schema。
 - **修改文件**：
