@@ -26,6 +26,8 @@ from sqlalchemy import (
     ForeignKey,
     Integer,
     String,
+    func,
+    select,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -233,3 +235,117 @@ def _uuid() -> str:
     from uuid import uuid4
 
     return uuid4().hex
+
+
+class SessionStore:
+    """Append-only session write path + event-path traversal (phase C2).
+
+    History is immutable: there is no API to edit an existing event's content.
+    Writers only ever ``append_event`` a new row, and every append advances the
+    session ``active_event_id`` (the tip of the active branch). Path traversal
+    walks ``parent_event_id`` from any event back to the root, then reverses for
+    a stable root→event order (DEV_SPEC C2).
+    """
+
+    def __init__(self, repo: SessionRepository | None = None) -> None:
+        self._repo = repo or SessionRepository()
+
+    async def create_session(
+        self,
+        session,
+        *,
+        title: str = "",
+        task_type: str | None = None,
+        environment: str = "dev",
+        actor_id: str | None = None,
+        id: str | None = None,
+    ) -> TaskSession:
+        return await self._repo.create_session(
+            session,
+            title=title,
+            task_type=task_type,
+            environment=environment,
+            actor_id=actor_id,
+            id=id,
+        )
+
+    async def append_event(
+        self,
+        session,
+        *,
+        session_id: str,
+        event_type: str,
+        content: dict | None = None,
+        parent_event_id: str | None = None,
+        seq: int | None = None,
+        id: str | None = None,
+    ) -> TaskSessionEvent:
+        """Append one event and advance ``active_event_id``. Never updates history."""
+        if seq is None:
+            seq = await self._next_seq(session, session_id)
+        event = await self._repo.append_event(
+            session,
+            session_id=session_id,
+            event_type=event_type,
+            content=content,
+            parent_event_id=parent_event_id,
+            seq=seq,
+            id=id,
+        )
+        # The newly appended event becomes the tip of the active branch.
+        await self._repo.set_active_event_id(session, session_id, event.id)
+        return event
+
+    async def _next_seq(self, session, session_id: str) -> int:
+        stmt = select(func.coalesce(func.max(TaskSessionEvent.seq), 0)).where(
+            TaskSessionEvent.session_id == session_id
+        )
+        cur = (await session.execute(stmt)).scalar_one()
+        return int(cur) + 1
+
+    async def list_session_events(
+        self, session, session_id: str
+    ) -> list[TaskSessionEvent]:
+        """All events in the session, ordered by ``seq`` (stable order)."""
+        stmt = (
+            select(TaskSessionEvent)
+            .where(TaskSessionEvent.session_id == session_id)
+            .order_by(TaskSessionEvent.seq)
+        )
+        rows = (await session.execute(stmt)).scalars().all()
+        return list(rows)
+
+    async def get_event_path(
+        self, session, *, session_id: str, event_id: str
+    ) -> list[TaskSessionEvent]:
+        """Walk ``parent_event_id`` from ``event_id`` to the root, reversed to
+        root→event order. Raises ``KeyError`` if the event is not found."""
+        by_id: dict[str, TaskSessionEvent] = {
+            e.id: e for e in await self.list_session_events(session, session_id)
+        }
+        if event_id not in by_id:
+            raise KeyError(f"event {event_id} not found in session {session_id}")
+
+        path: list[TaskSessionEvent] = []
+        cur: str | None = event_id
+        guard = len(by_id) + 1  # cycle guard
+        while cur is not None and guard > 0:
+            node = by_id.get(cur)
+            if node is None:
+                break
+            path.append(node)
+            cur = node.parent_event_id
+            guard -= 1
+        path.reverse()
+        return path
+
+    async def get_active_path(
+        self, session, session_id: str
+    ) -> list[TaskSessionEvent]:
+        """The active branch path ending at ``active_event_id``."""
+        ts = await self._repo.get_session(session, session_id)
+        if ts is None or ts.active_event_id is None:
+            return []
+        return await self.get_event_path(
+            session, session_id=session_id, event_id=ts.active_event_id
+        )

@@ -591,7 +591,7 @@ event_stream:
 |---|---:|---|
 | 阶段 A | 5 | [x] |
 | 阶段 B | 7 | [x] |
-| 阶段 C | 7 | [ ] |
+| 阶段 C | 7 | [~] |
 | 阶段 D | 6 | [ ] |
 | 阶段 E | 6 | [ ] |
 | 阶段 F | 7 | [ ] |
@@ -804,7 +804,7 @@ event_stream:
 
 ## 阶段 C：Session Memory、回退、压缩和 JSONL 导出
 
-### C1：Session 表结构
+### [x] C1：Session 表结构
 
 - **目标**：实现 session 相关表。
 - **修改文件**：
@@ -822,7 +822,7 @@ event_stream:
   - session 支持 `active_event_id`。
 - **测试方法**：`pytest -q tests/unit/test_session_models.py`。
 
-### C2：Append-only Session Store
+### [x] C2：Append-only Session Store
 
 - **目标**：实现只追加会话写入。
 - **修改文件**：
