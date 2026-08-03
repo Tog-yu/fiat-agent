@@ -21,7 +21,7 @@ from mcp import ClientSession
 from mcp.client.stdio import StdioServerParameters, stdio_client
 
 from fiat_agent.config import McpServerConfig, Settings, load_settings
-from fiat_agent.errors import FiatAgentError
+from fiat_agent.errors import FiatAgentError, ToolExecutionError
 
 
 class McpClientNotStartedError(FiatAgentError):
@@ -124,6 +124,37 @@ class RagMcpClient:
     @property
     def is_started(self) -> bool:
         return self._started
+
+    async def call_tool(self, name: str, arguments: dict) -> list[Any]:
+        """Call an MCP tool by name and return its content items.
+
+        Raises `ToolExecutionError` when the server reports an error
+        (``isError``), so a failed RAG lookup never silently enters the trusted
+        context (DEV_SPEC E3 criterion 2).
+        """
+        if self._session is None:
+            raise McpClientNotStartedError("请先调用 start() 与 initialize()")
+        result = await self._session.call_tool(name, arguments)
+        if getattr(result, "isError", False):
+            texts = [getattr(c, "text", "") for c in result.content if getattr(c, "text", None)]
+            detail = "; ".join(t for t in texts if t)
+            raise ToolExecutionError(f"MCP 工具 {name} 返回错误: {detail}")
+        return list(result.content)
+
+    async def query_knowledge_hub(
+        self, query: str, top_k: int = 5, collection: str | None = None
+    ) -> list[Any]:
+        """Query the RAG knowledge hub (wraps the `query_knowledge_hub` MCP tool).
+
+        Args:
+            query: the search question / keywords.
+            top_k: max number of results (server default 5).
+            collection: optional collection name to narrow the search scope.
+        """
+        arguments: dict[str, Any] = {"query": query, "top_k": top_k}
+        if collection is not None:
+            arguments["collection"] = collection
+        return await self.call_tool("query_knowledge_hub", arguments)
 
     async def close(self) -> None:
         """Terminate the session and the server subprocess if still running."""

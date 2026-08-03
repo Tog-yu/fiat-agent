@@ -1023,7 +1023,7 @@ event_stream:
   - schema 可转换成内部 ToolDefinition。
 - **测试方法**：`pytest -q tests/integration/test_rag_mcp_tools_list.py`。
 
-### [ ] E3：query_knowledge_hub 调用
+### [x] E3：query_knowledge_hub 调用
 
 - **目标**：封装知识库查询。
 - **修改文件**：
