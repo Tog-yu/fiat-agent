@@ -572,7 +572,7 @@
   - 能识别 rag_qa、alert_diagnosis、test_env_automation、cashback_reconcile、logistics_validation。
 - **测试方法**：`pytest -q tests/unit/test_task_classifier.py`。
 
-### [ ] G3：Context Builder 节点
+### [x] G3：Context Builder 节点
 
 - **目标**：组装系统提示词、权限、skill、memory、tool schema。
 - **修改文件**：

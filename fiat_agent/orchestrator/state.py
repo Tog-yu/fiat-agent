@@ -13,7 +13,7 @@ Fields required by the spec: ``actor``, ``session``, ``messages``,
 from __future__ import annotations
 
 from enum import Enum
-from typing import Optional
+from typing import Any, Optional
 
 from fiat_agent.models.base import ChatMessage
 from fiat_agent.schemas.agent import ToolResult
@@ -53,3 +53,8 @@ class AgentState(FiatModel):
 
     # Approval lifecycle for this run (G6).
     approval_state: ApprovalState = ApprovalState.NOT_REQUIRED
+
+    # Built by the context node (G3): the system prompt and the permission-
+    # filtered tool schemas handed to the model on the next turn.
+    system_prompt: str = ""
+    tool_schemas: list[dict[str, Any]] = []
