@@ -594,7 +594,7 @@ event_stream:
 | 阶段 C | 7 | [x] |
 | 阶段 D | 6 | [x] |
 | 阶段 E | 6 | [x] |
-| 阶段 F | 7 | [ ] |
+| 阶段 F | 7 | [~] |
 | 阶段 G | 8 | [ ] |
 | 阶段 H | 8 | [ ] |
 | 阶段 I | 5 | [ ] |
@@ -1083,7 +1083,7 @@ event_stream:
   - 工具包含 name、description、input_schema、risk_level、approval_required。
 - **测试方法**：`pytest -q tests/unit/test_tool_definition.py`。
 
-### [ ] F2：工具注册中心
+### [x] F2：工具注册中心
 
 - **目标**：统一注册业务工具和 MCP 工具。
 - **修改文件**：

@@ -479,7 +479,7 @@
   - 工具包含 name、description、input_schema、risk_level、approval_required。
 - **测试方法**：`pytest -q tests/unit/test_tool_definition.py`。
 
-### [ ] F2：工具注册中心
+### [x] F2：工具注册中心
 
 - **目标**：统一注册业务工具和 MCP 工具。
 - **修改文件**：
