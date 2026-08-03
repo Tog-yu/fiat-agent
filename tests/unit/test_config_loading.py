@@ -25,7 +25,8 @@ from fiat_agent.config import (
 def test_load_default_settings():
     settings = load_settings()
     assert isinstance(settings, Settings)
-    assert settings.database.url.startswith("postgresql+asyncpg://")
+    # 当前默认 SQLite（扩展点：PostgreSQL 通过 FIAT_DB_URL 切换）。
+    assert settings.database.url.startswith("sqlite+aiosqlite://")
     assert settings.models.default == "gpt-4.1-mini"
     assert settings.mcp_servers["rag"].name == "modular-rag-mcp-server"
 

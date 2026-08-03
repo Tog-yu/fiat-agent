@@ -1,9 +1,18 @@
 """Async database engine + session (phase B1, DEV_SPEC B1).
 
-DB-agnostic SQLAlchemy 2.0 async layer. Production targets PostgreSQL
-(asyncpg); the integration test exercises it with a temporary sqlite+aiosqlite
-database so it runs without an external Postgres service (DEV_SPEC §9:
-tests must not depend on external services).
+DB-agnostic SQLAlchemy 2.0 async layer. The driver is selected purely by the
+``database.url`` scheme, so switching databases is a config change, not a code
+change:
+
+  - SQLite  (current default): ``sqlite+aiosqlite:///...`` — zero-ops, no
+    external service. Used for development, single-node and low-risk scenarios.
+  - PostgreSQL (extension point, not yet enabled):
+    ``postgresql+asyncpg://...`` — install the optional ``[postgres]`` extra
+    and set ``FIAT_DB_URL``. Provides concurrency, JSONB, replication and the
+    scale needed for the append-only session event store.
+
+Tests use a temporary sqlite+aiosqlite database so they run without any
+external service (DEV_SPEC §9: tests must not depend on external services).
 """
 
 from __future__ import annotations
@@ -39,9 +48,17 @@ def get_async_engine(settings: Settings) -> AsyncEngine:
             code="DB_NO_URL", message="database.url 未配置，无法创建引擎"
         )
     connect_args: dict = {}
-    if url.startswith("sqlite://"):
+    if url.startswith("sqlite"):
         # Only the synchronous pysqlite driver needs check_same_thread=False.
         connect_args = {"check_same_thread": False}
+        # Auto-create the parent directory for file-based sqlite URLs so the
+        # default `sqlite+aiosqlite:///./data/fiat_agent.db` works out of the box.
+        if ":///" in url:
+            file_part = url.split("///", 1)[1].split("?", 1)[0].split("#", 1)[0]
+            if file_part and not file_part.startswith(":"):
+                from pathlib import Path
+
+                Path(file_part).parent.mkdir(parents=True, exist_ok=True)
     _engine = create_async_engine(
         url, future=True, pool_pre_ping=True, connect_args=connect_args
     )

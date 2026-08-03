@@ -45,7 +45,7 @@ pytest -q tests/unit/test_smoke_imports.py
 
 1. Agent 与业务执行隔离：生产写操作必须经受控后端 API、审批流、审计。
 2. 确定性规则优先：权限、审批、金额计算、状态机、字段校验、审计不走 LLM。
-3. 参考 Pi Agent 结构但不照搬：LangGraph 承载 Agent Loop，PostgreSQL 承载 session event store。
+3. 参考 Pi Agent 结构但不照搬：LangGraph 承载 Agent Loop；当前以 **SQLite** 承载结构化存储（用户/角色/权限/审计/审批），**PostgreSQL 作为扩展点**后续启用，承载高并发 session event store。
 4. RAG 通过 MCP 接入：只实现 MCP Client / 适配 / 权限过滤 / 结果解析 / 上下文合并 / 审计。
 
 ## 模型与 RAG

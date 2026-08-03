@@ -15,17 +15,22 @@ dependencies = [
     "pydantic>=2.6",
     "pyyaml>=6.0",
     # Phase B1: async DB layer (SQLAlchemy 2.0) + Alembic migrations.
-    # Production uses PostgreSQL via asyncpg; tests use aiosqlite (no server).
+    # Current default is SQLite via aiosqlite (zero external service, low cost).
+    # PostgreSQL is an extension point — pull it in with `pip install ".[postgres]"`.
     # greenlet is required by SQLAlchemy's async extension.
     "sqlalchemy>=2.0",
     "alembic>=1.13",
-    "asyncpg>=0.29",
     "aiosqlite>=0.20",
     "greenlet>=3.0",
     # Phase B7: API layer (FastAPI) + TestClient (httpx).
     "fastapi>=0.110",
     "httpx>=0.27",
 ]
+
+# Optional extras — keep the base install lean.
+# `postgres`: enable the PostgreSQL extension point (set FIAT_DB_URL + install this).
+[project.optional-dependencies]
+postgres = ["asyncpg>=0.29"]
 
 [tool.setuptools.packages.find]
 where = ["."]

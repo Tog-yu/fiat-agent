@@ -7,7 +7,11 @@ app:
   environment: ${FiatAgent_ENV:-dev}
 
 database:
-  url: postgresql+asyncpg://user:password@localhost:5432/fiat_agent
+  # 当前默认 SQLite（零运维、零外部依赖，适合开发 / 单机 / 低风险场景）。
+  # PostgreSQL 作为扩展点：设置环境变量 FIAT_DB_URL=postgresql+asyncpg://...
+  # 即可切换，无需改动代码（引擎工厂按 URL scheme 自动选择驱动）。
+  # 升级 PG 的前置条件见项目决策笔记（SQLite vs PostgreSQL）。
+  url: ${FIAT_DB_URL:-sqlite+aiosqlite:///./data/fiat_agent.db}
 
 redis:
   url: redis://localhost:6379/0
