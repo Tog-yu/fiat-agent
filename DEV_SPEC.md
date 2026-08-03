@@ -1166,7 +1166,7 @@ event_stream:
   - 包含 actor、session、messages、task_type、tool_results、approval_state。
 - **测试方法**：`pytest -q tests/unit/test_agent_state.py`。
 
-### [ ] G2：任务分类节点
+### [x] G2：任务分类节点
 
 - **目标**：识别任务类型。
 - **修改文件**：
