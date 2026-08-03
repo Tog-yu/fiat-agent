@@ -552,7 +552,7 @@
 
 ## 阶段 G：LangGraph Agent Orchestrator
 
-### [ ] G1：AgentState 定义
+### [x] G1：AgentState 定义
 
 - **目标**：定义 LangGraph 状态对象。
 - **修改文件**：

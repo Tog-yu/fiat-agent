@@ -595,7 +595,7 @@ event_stream:
 | 阶段 D | 6 | [x] |
 | 阶段 E | 6 | [x] |
 | 阶段 F | 7 | [x] |
-| 阶段 G | 8 | [ ] |
+| 阶段 G | 8 | [~] |
 | 阶段 H | 8 | [ ] |
 | 阶段 I | 5 | [ ] |
 | 阶段 J | 6 | [ ] |
@@ -1156,7 +1156,7 @@ event_stream:
 
 ## 阶段 G：LangGraph Agent Orchestrator
 
-### [ ] G1：AgentState 定义
+### [x] G1：AgentState 定义
 
 - **目标**：定义 LangGraph 状态对象。
 - **修改文件**：
