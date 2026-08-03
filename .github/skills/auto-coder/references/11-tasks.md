@@ -313,7 +313,7 @@
 
 ## 阶段 D：Model Gateway 与 Function Calling
 
-### D1：模型接口
+### [x] D1：模型接口
 
 - **目标**：定义统一 LLM 接口。
 - **修改文件**：
