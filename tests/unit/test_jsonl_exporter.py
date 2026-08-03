@@ -13,7 +13,7 @@ from pathlib import Path
 import pytest
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
-from fiat_agent.models.base import Base
+from fiat_agent.models.orm import Base
 from fiat_agent.sessions.branches import BranchManager
 from fiat_agent.sessions.jsonl_exporter import export_session_jsonl
 from fiat_agent.sessions.store import SessionStore

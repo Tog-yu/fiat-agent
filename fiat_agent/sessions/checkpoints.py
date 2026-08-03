@@ -17,7 +17,7 @@ from typing import Optional
 from sqlalchemy import JSON, DateTime, ForeignKey, String, select
 from sqlalchemy.orm import Mapped, mapped_column
 
-from fiat_agent.models.base import Base
+from fiat_agent.models.orm import Base
 
 # Ensure the referenced session tables are registered in the shared metadata
 # (GraphCheckpoint.session_id FK targets task_sessions), so the ORM model can

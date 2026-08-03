@@ -8,7 +8,7 @@ from typing import Optional
 from sqlalchemy import Boolean, DateTime, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from fiat_agent.models.base import Base
+from fiat_agent.models.orm import Base
 
 
 def _now() -> datetime:

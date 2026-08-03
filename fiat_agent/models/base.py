@@ -5,9 +5,8 @@ Gateway. Concrete providers (OpenAI / Anthropic / private, phase D2+) subclass
 :class:`BaseChatModel`; the request/response schemas are Pydantic v2 models so
 they are validated and JSON-serializable.
 
-The SQLAlchemy declarative ``Base`` also lives in this module (phase B2) to keep
-a single import surface for the models package; it is independent of the LLM
-contract defined below.
+The ORM declarative ``Base`` now lives in :mod:`fiat_agent.models.orm` (phase
+B2) so the persistence layer and the LLM contract stay cleanly separated.
 """
 
 from __future__ import annotations
@@ -17,16 +16,6 @@ from collections.abc import AsyncIterator
 from typing import Any, ClassVar, Optional
 
 from pydantic import BaseModel, Field
-
-from sqlalchemy.orm import DeclarativeBase
-
-
-class Base(DeclarativeBase):
-    """Common base for all ORM models (phase B2, DEV_SPEC B2).
-
-    Metadata is shared, so Alembic autogenerate and test-time table creation
-    see every model registered under ``Base``.
-    """
 
 
 # --- LLM contract ---------------------------------------------------------

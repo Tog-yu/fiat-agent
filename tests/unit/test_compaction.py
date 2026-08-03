@@ -18,7 +18,7 @@ from fiat_agent.context.compaction import (
     compact_events,
     should_compact,
 )
-from fiat_agent.models.base import Base
+from fiat_agent.models.orm import Base
 from fiat_agent.sessions.store import SessionStore, TaskSessionEvent
 
 

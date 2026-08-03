@@ -16,7 +16,7 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from fiat_agent.config import DatabaseConfig, Settings
-from fiat_agent.models.base import Base
+from fiat_agent.models.orm import Base
 
 config = context.config
 
