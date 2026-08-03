@@ -854,7 +854,7 @@ event_stream:
   - 生产操作不会因会话回退自动撤销。
 - **测试方法**：`pytest -q tests/integration/test_session_branching.py`。
 
-### C4：LangGraph checkpoint
+### [x] C4：LangGraph checkpoint
 
 - **目标**：实现 graph 状态恢复。
 - **修改文件**：
