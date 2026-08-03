@@ -617,7 +617,7 @@
   - approval_requested 事件写入 session。
 - **测试方法**：`pytest -q tests/unit/test_approval_node.py`。
 
-### [ ] G7：Final Answer 节点
+### [x] G7：Final Answer 节点
 
 - **目标**：生成最终报告。
 - **修改文件**：
