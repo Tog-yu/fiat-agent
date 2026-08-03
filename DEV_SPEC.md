@@ -591,7 +591,7 @@ event_stream:
 |---|---:|---|
 | 阶段 A | 5 | [x] |
 | 阶段 B | 7 | [x] |
-| 阶段 C | 7 | [~] |
+| 阶段 C | 7 | [x] |
 | 阶段 D | 6 | [ ] |
 | 阶段 E | 6 | [ ] |
 | 阶段 F | 7 | [ ] |
@@ -885,7 +885,7 @@ event_stream:
   - 原始事件不删除。
 - **测试方法**：`pytest -q tests/unit/test_compaction.py`。
 
-### C6：短期记忆和长期记忆注入
+### [x] C6：短期记忆和长期记忆注入
 
 - **目标**：实现 Memory Resolver。
 - **修改文件**：
@@ -901,7 +901,7 @@ event_stream:
   - 长期记忆通过 RAG、用户权限、历史任务按需注入。
 - **测试方法**：`pytest -q tests/unit/test_memory_resolver.py`。
 
-### C7：JSONL 导出
+### [x] C7：JSONL 导出
 
 - **目标**：支持导出会话为 JSONL。
 - **修改文件**：

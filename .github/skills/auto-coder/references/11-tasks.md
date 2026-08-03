@@ -234,7 +234,7 @@
   - 路径回溯顺序稳定。
 - **测试方法**：`pytest -q tests/integration/test_session_store.py`。
 
-### C3：回退和分支
+### [x] C3：回退和分支
 
 - **目标**：实现 Pi-style 会话树。
 - **修改文件**：
@@ -250,7 +250,7 @@
   - 生产操作不会因会话回退自动撤销。
 - **测试方法**：`pytest -q tests/integration/test_session_branching.py`。
 
-### C4：LangGraph checkpoint
+### [x] C4：LangGraph checkpoint
 
 - **目标**：实现 graph 状态恢复。
 - **修改文件**：
@@ -265,7 +265,7 @@
   - checkpoint 与 session_id 绑定。
 - **测试方法**：`pytest -q tests/integration/test_graph_checkpoint.py`。
 
-### C5：Context Compaction
+### [x] C5：Context Compaction
 
 - **目标**：实现上下文压缩节点。
 - **修改文件**：
@@ -281,7 +281,7 @@
   - 原始事件不删除。
 - **测试方法**：`pytest -q tests/unit/test_compaction.py`。
 
-### C6：短期记忆和长期记忆注入
+### [x] C6：短期记忆和长期记忆注入
 
 - **目标**：实现 Memory Resolver。
 - **修改文件**：
@@ -297,7 +297,7 @@
   - 长期记忆通过 RAG、用户权限、历史任务按需注入。
 - **测试方法**：`pytest -q tests/unit/test_memory_resolver.py`。
 
-### C7：JSONL 导出
+### [x] C7：JSONL 导出
 
 - **目标**：支持导出会话为 JSONL。
 - **修改文件**：

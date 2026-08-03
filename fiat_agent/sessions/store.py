@@ -280,7 +280,16 @@ class SessionStore:
         seq: int | None = None,
         id: str | None = None,
     ) -> TaskSessionEvent:
-        """Append one event and advance ``active_event_id``. Never updates history."""
+        """Append one event and advance ``active_event_id``. Never updates history.
+
+        If ``parent_event_id`` is omitted, the event is chained to the session's
+        current tip (``active_event_id``), so successive appends form a single
+        continuous branch by default. The first event of a session becomes the
+        root (no parent).
+        """
+        if parent_event_id is None:
+            cur = await self._repo.get_session(session, session_id)
+            parent_event_id = cur.active_event_id if cur else None
         if seq is None:
             seq = await self._next_seq(session, session_id)
         event = await self._repo.append_event(
