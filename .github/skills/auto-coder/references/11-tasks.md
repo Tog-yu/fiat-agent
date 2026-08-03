@@ -329,7 +329,7 @@
   - response 包含 token usage。
 - **测试方法**：`pytest -q tests/unit/test_model_base.py`。
 
-### D2：Provider 实现
+### [x] D2：Provider 实现
 
 - **目标**：接入 OpenAI-compatible provider。
 - **修改文件**：

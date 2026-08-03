@@ -25,6 +25,8 @@ dependencies = [
     # Phase B7: API layer (FastAPI) + TestClient (httpx).
     "fastapi>=0.110",
     "httpx>=0.27",
+    # Phase D2: OpenAI-compatible provider (covers OpenAI / DeepSeek / private relays).
+    "openai==2.52.0",
 ]
 
 # Optional extras — keep the base install lean.
