@@ -628,7 +628,7 @@
   - 引用来源保留。
 - **测试方法**：`pytest -q tests/unit/test_final_answer_node.py`。
 
-### [ ] G8：Graph 编排
+### [x] G8：Graph 编排
 
 - **目标**：串联完整 LangGraph。
 - **修改文件**：

@@ -595,7 +595,7 @@ event_stream:
 | 阶段 D | 6 | [x] |
 | 阶段 E | 6 | [x] |
 | 阶段 F | 7 | [x] |
-| 阶段 G | 8 | [~] |
+| 阶段 G | 8 | [x] |
 | 阶段 H | 8 | [ ] |
 | 阶段 I | 5 | [ ] |
 | 阶段 J | 6 | [ ] |
@@ -1232,7 +1232,7 @@ event_stream:
   - 引用来源保留。
 - **测试方法**：`pytest -q tests/unit/test_final_answer_node.py`。
 
-### [ ] G8：Graph 编排
+### [x] G8：Graph 编排
 
 - **目标**：串联完整 LangGraph。
 - **修改文件**：
