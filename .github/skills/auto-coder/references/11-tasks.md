@@ -698,7 +698,7 @@
   - 重复记录和金额格式异常可识别。
 - **测试方法**：`pytest -q tests/unit/test_cashback_parse.py`。
 
-### [ ] H6：返现对账 dry-run
+### [x] H6：返现对账 dry-run
 
 - **目标**：生成返现对账报告和变更计划。
 - **修改文件**：
