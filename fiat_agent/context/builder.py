@@ -13,6 +13,7 @@ from typing import Any, Optional
 
 from fiat_agent.rag.context_merge import MergedRagContext
 from fiat_agent.schemas.common import ActorContext, FiatModel, TaskType
+from fiat_agent.skills.loader import DomainSkill
 from fiat_agent.tools.function_calling import to_openai_tool_schema
 from fiat_agent.tools.registry import ToolRegistry
 
@@ -44,11 +45,22 @@ class ContextBuilder:
         actor: ActorContext,
         task_type: Optional[TaskType] = None,
         memory: str = "",
+        skill: Optional[DomainSkill] = None,
     ) -> str:
-        """Compose the system prompt from the base, task and memory sections."""
+        """Compose the system prompt from the base, task and memory sections.
+
+        When a :class:`DomainSkill` is supplied (e.g. loaded for ``task_type``),
+        its domain system prompt is injected right after the base so the model
+        specialises to the business workflow. The skill's ``tools`` /
+        ``output_schema`` are consumed by the orchestrator separately.
+        """
         parts = [self._base]
         if task_type is not None:
             parts.append(f"当前任务类型：{task_type.value}。")
+        if skill is not None:
+            parts.append(
+                f"## 业务技能：{skill.name}\n{skill.system_prompt}"
+            )
         if memory:
             parts.append(f"记忆：\n{memory}")
         return "\n".join(parts)
@@ -75,11 +87,14 @@ class ContextBuilder:
         memory: str = "",
         rag_context: Optional[MergedRagContext] = None,
         environment: Any = None,
+        skill: Optional[DomainSkill] = None,
     ) -> BuiltContext:
         """Assemble the full context for one turn."""
         rag_text = rag_context.context if rag_context is not None else ""
         return BuiltContext(
-            system_prompt=self.build_system_prompt(actor, task_type, memory),
+            system_prompt=self.build_system_prompt(
+                actor, task_type, memory, skill=skill
+            ),
             tool_schemas=self.build_tool_schemas(actor, registry, environment),
             memory=memory,
             rag_context=rag_text,

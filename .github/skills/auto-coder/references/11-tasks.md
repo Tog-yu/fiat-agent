@@ -641,7 +641,7 @@
 
 ## 阶段 H：业务 Workflows
 
-### [ ] H1：Domain Skill 加载
+### [x] H1：Domain Skill 加载
 
 - **目标**：实现业务技能包加载。
 - **修改文件**：
