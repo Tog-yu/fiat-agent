@@ -1363,7 +1363,7 @@ event_stream:
   - `GET /api/rag/documents/:id/summary`
 - **测试方法**：`pytest -q tests/integration/test_rag_api.py`。
 
-### [ ] I3：CLI
+### [x] I3：CLI
 
 - **目标**：实现 `fiat-agent` 命令。
 - **修改文件**：
