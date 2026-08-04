@@ -46,7 +46,7 @@ test = ["pytest>=8.0"]
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["fiat_agent*", "apps*"]
+include = ["fiat_agent*", "apps*", "adapters*"]
 
 [tool.pytest.ini_options]
 # A2: shared test base (conftest fixtures + markers). Tests run from the repo

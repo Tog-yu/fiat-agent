@@ -786,7 +786,7 @@
   - 可处理审批卡片回调。
 - **测试方法**：`pytest -q tests/integration/test_lark_bot.py`。
 
-### [ ] I5：Fiat MCP Adapter
+### [x] I5：Fiat MCP Adapter
 
 - **目标**：可选，把 fiat-agent 暴露为 MCP Server 供 Claude Code 调用。
 - **修改文件**：
