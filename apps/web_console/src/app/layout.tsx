@@ -16,6 +16,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Link href="/sessions">会话</Link>
           <Link href="/rag">RAG</Link>
           <Link href="/approvals">审批</Link>
+          <Link href="/audit">审计</Link>
           <span className="spacer" />
           <span className="who">控制台</span>
         </nav>

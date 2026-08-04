@@ -158,3 +158,41 @@ export async function decideApproval(
     body: JSON.stringify({ reason: reason ?? null }),
   })
 }
+
+export interface AuditEvent {
+  id: string
+  timestamp: string
+  type: string
+  actor_id: string
+  roles: string[]
+  environment: string
+  tool_name: string | null
+  action: string | null
+  allowed: boolean | null
+  reason: string | null
+  risk_level: string | null
+  metadata: Record<string, any>
+}
+
+export interface AuditQuery {
+  actor_id?: string
+  tool_name?: string
+  risk_level?: string
+  type?: string
+  from_ts?: string
+  to_ts?: string
+  limit?: number
+}
+
+export async function listAudit(q: AuditQuery = {}): Promise<AuditEvent[]> {
+  const params = new URLSearchParams()
+  if (q.actor_id) params.set("actor_id", q.actor_id)
+  if (q.tool_name) params.set("tool_name", q.tool_name)
+  if (q.risk_level) params.set("risk_level", q.risk_level)
+  if (q.type) params.set("type", q.type)
+  if (q.from_ts) params.set("from_ts", q.from_ts)
+  if (q.to_ts) params.set("to_ts", q.to_ts)
+  if (q.limit) params.set("limit", String(q.limit))
+  const qs = params.toString()
+  return jsonFetch<AuditEvent[]>(`/api/audit${qs ? `?${qs}` : ""}`)
+}
