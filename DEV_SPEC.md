@@ -1403,7 +1403,7 @@ event_stream:
 
 ## 阶段 J：React Web Console
 
-### [ ] J1：Web Console 骨架
+### [~] J1：Web Console 骨架
 
 - **目标**：建立 React / Next.js 项目。
 - **修改文件**：
