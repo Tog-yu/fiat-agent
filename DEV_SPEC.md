@@ -1378,7 +1378,7 @@ event_stream:
   - chat 模式可多轮。
 - **测试方法**：`pytest -q tests/e2e/test_cli.py`。
 
-### [ ] I4：Lark Bot
+### [x] I4：Lark Bot
 
 - **目标**：接入 Lark 消息和审批回调。
 - **修改文件**：
