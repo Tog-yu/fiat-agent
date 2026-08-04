@@ -652,7 +652,7 @@
   - 不同 task_type 加载不同 prompt、工具和输出 schema。
 - **测试方法**：`pytest -q tests/unit/test_domain_skill_loader.py`。
 
-### [ ] H2：RAG 问答 workflow
+### [x] H2：RAG 问答 workflow
 
 - **目标**：实现法币知识问答。
 - **修改文件**：
