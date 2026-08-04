@@ -66,6 +66,8 @@ class AlertDiagnosisResult(FiatModel):
     the model, so callers can trust it reflects an actual gateway call.
     """
 
+    __test__ = False  # not a pytest test class
+
     alert: str = ""
     impact: dict[str, Any] = {}
     possible_causes: list[dict[str, Any]] = []

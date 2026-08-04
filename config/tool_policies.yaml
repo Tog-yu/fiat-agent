@@ -44,3 +44,9 @@ policies:
     allowed_roles: [oncall, ops]
     allowed_environments: [dev, staging, prod]
     allowed_scopes: [lark_notify]
+
+  - tool: test_env                  # 测试环境自动化（仅 DEV）
+    risk_level: L3
+    allowed_roles: [oncall, ops]
+    allowed_environments: [dev]
+    allowed_scopes: [test_env]

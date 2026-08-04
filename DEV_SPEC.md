@@ -1280,7 +1280,7 @@ event_stream:
   - 可发送 Lark 通知。
 - **测试方法**：`pytest -q tests/e2e/test_alert_diagnosis_workflow.py`。
 
-### [ ] H4：测试账号 workflow
+### [x] H4：测试账号 workflow
 
 - **目标**：实现测试环境自动化。
 - **修改文件**：

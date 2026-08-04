@@ -59,6 +59,8 @@ class RagQaResult(FiatModel):
     ``False`` on every refusal so callers can branch without string-matching.
     """
 
+    __test__ = False  # not a pytest test class
+
     query: str = ""
     answer: str = ""
     citations: list[Citation] = []
