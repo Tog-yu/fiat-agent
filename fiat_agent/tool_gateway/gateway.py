@@ -12,6 +12,7 @@ Failures never escape as raw exceptions — they are normalized into the shared
 from __future__ import annotations
 
 import inspect
+import time
 from datetime import datetime, timezone
 from typing import Any, Awaitable, Callable
 from uuid import uuid4
@@ -38,6 +39,7 @@ class ToolCallRecord(FiatModel):
     status: str  # success | error | pending_approval
     error: str | None = None
     result_summary: str | None = None
+    duration_ms: float = 0.0  # wall-clock handler execution time
     timestamp: datetime
 
 
@@ -132,9 +134,11 @@ class ToolGateway:
             )
 
         try:
+            started = time.perf_counter()
             raw = handler(actor, arguments, context)
             if inspect.isawaitable(raw):
                 raw = await raw
+            elapsed_ms = (time.perf_counter() - started) * 1000.0
             summary = _summarize(raw)
             return await self._finish(
                 call_id, actor, tool_name, arguments,
@@ -142,14 +146,17 @@ class ToolGateway:
                 error=None,
                 result_summary=summary,
                 raw=raw,
+                duration_ms=elapsed_ms,
                 decision_allowed=True,
                 decision_reason=decision.reason,
             )
         except Exception as exc:  # noqa: BLE001 - normalize, don't leak stack
+            elapsed_ms = (time.perf_counter() - started) * 1000.0
             return await self._finish(
                 call_id, actor, tool_name, arguments,
                 status=ToolResultStatus.ERROR,
                 error=str(exc),
+                duration_ms=elapsed_ms,
                 decision_allowed=True,
                 decision_reason=decision.reason,
             )
@@ -166,6 +173,7 @@ class ToolGateway:
         error: str | None,
         result_summary: str | None = None,
         raw: Any | None = None,
+        duration_ms: float = 0.0,
         decision_allowed: bool,
         decision_reason: str | None,
     ) -> ToolResult:
@@ -179,6 +187,7 @@ class ToolGateway:
             status=status.value,
             error=error,
             result_summary=result_summary,
+            duration_ms=duration_ms,
             timestamp=datetime.now(timezone.utc),
         )
         self.tool_calls.append(record)

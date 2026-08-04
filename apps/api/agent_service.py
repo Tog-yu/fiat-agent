@@ -24,6 +24,7 @@ from fiat_agent.db import get_async_engine
 from fiat_agent.models.gateway import ModelGateway
 from fiat_agent.orchestrator.graph import AgentGraph
 from fiat_agent.orchestrator.state import ApprovalState
+from fiat_agent.approvals.service import ApprovalService
 from fiat_agent.schemas.common import ActorContext, TaskType
 from fiat_agent.sessions.store import SessionStore
 from fiat_agent.tools.registry import ToolRegistry
@@ -142,6 +143,31 @@ class AgentService:
                 "environment": ts.environment,
                 "status": ts.status,
             }
+
+    async def list_sessions(self, *, limit: int = 100) -> list[dict]:
+        """Return all sessions (most-recently-updated first)."""
+        if self._engine is None:
+            raise RuntimeError("数据库未配置（database.url 为空），无法列出会话")
+        from fiat_agent.db import session_scope
+
+        async with session_scope(engine=self._engine) as session:
+            rows = await self._store.list_sessions(session, limit=limit)
+            return [
+                {
+                    "session_id": ts.id,
+                    "title": ts.title,
+                    "task_type": ts.task_type,
+                    "environment": ts.environment,
+                    "status": ts.status,
+                    "created_at": ts.created_at.isoformat()
+                    if ts.created_at is not None
+                    else None,
+                    "updated_at": ts.updated_at.isoformat()
+                    if ts.updated_at is not None
+                    else None,
+                }
+                for ts in rows
+            ]
 
     async def run_message(
         self, *, session_id: str, actor: ActorContext, content: str
@@ -281,6 +307,7 @@ async def build_agent_service(
 
     store = SessionStore()
     audit = AuditService()  # in-memory; swap for a DB-backed repo in a later phase
+    approval = ApprovalService()  # in-memory; shared so the web console / Lark bot see the same queue
 
     registry = ToolRegistry()
     for name, policy in load_tool_policies().items():
@@ -314,6 +341,7 @@ async def build_agent_service(
         gateway=gateway,
         model_gateway=model_gateway,
         audit_service=audit,
+        approval_service=approval,
     )
     return AgentService(store=store, graph=graph, engine=engine)
 
@@ -344,3 +372,21 @@ async def get_agent_service() -> AgentService:
     if _service is None:
         _service = await build_agent_service()
     return _service
+
+
+_approval_service: ApprovalService | None = None
+
+
+async def get_approval_service() -> ApprovalService:
+    """FastAPI dependency returning the process-wide :class:`ApprovalService`.
+
+    Shares the same instance that the agent graph uses (it is created inside
+    :func:`build_agent_service`), so approvals requested by the agent appear in
+    the web console / Lark bot queue. Tests override this via
+    ``app.dependency_overrides[get_approval_service]``.
+    """
+    global _approval_service
+    if _approval_service is None:
+        svc = await get_agent_service()
+        _approval_service = svc.graph.approval_service
+    return _approval_service

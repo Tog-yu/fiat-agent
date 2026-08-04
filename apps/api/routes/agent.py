@@ -55,9 +55,35 @@ class EventView(BaseModel):
     created_at: str | None = None
 
 
+class SessionView(BaseModel):
+    session_id: str
+    title: str
+    task_type: str | None = None
+    environment: str
+    status: str
+    created_at: str | None = None
+    updated_at: str | None = None
+
+
+class SessionsResponse(BaseModel):
+    sessions: list[SessionView]
+
+
 class EventsResponse(BaseModel):
     session_id: str
     events: list[EventView]
+
+
+@router.get(
+    "/sessions",
+    response_model=SessionsResponse,
+)
+async def list_sessions(
+    service: AgentService = Depends(get_agent_service),
+) -> SessionsResponse:
+    """List all task sessions (most-recently-updated first)."""
+    rows = await service.list_sessions()
+    return SessionsResponse(sessions=[SessionView(**r) for r in rows])
 
 
 @router.post(

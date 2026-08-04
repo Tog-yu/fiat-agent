@@ -50,6 +50,9 @@ class ApprovalRepository:
     async def update(self, approval: Approval) -> None:  # pragma: no cover
         raise NotImplementedError
 
+    async def list(self, *, status: Optional[str] = None) -> list[Approval]:  # pragma: no cover
+        raise NotImplementedError
+
 
 class InMemoryApprovalRepository(ApprovalRepository):
     def __init__(self) -> None:
@@ -63,6 +66,14 @@ class InMemoryApprovalRepository(ApprovalRepository):
 
     async def update(self, approval: Approval) -> None:
         self._store[approval.id] = approval
+
+    async def list(self, *, status: Optional[str] = None) -> list[Approval]:
+        items = list(self._store.values())
+        if status is not None:
+            items = [a for a in items if a.status == status]
+        # Newest first by id (uuid hex sort is chronological enough for display).
+        items.sort(key=lambda a: a.id, reverse=True)
+        return items
 
 
 class ApprovalService:
@@ -93,6 +104,10 @@ class ApprovalService:
     async def get(self, approval_id: str) -> Optional[Approval]:
         """Look up an approval by id (read-only; used by the submit guard)."""
         return await self._repo.get(approval_id)
+
+    async def list(self, *, status: Optional[str] = None) -> list[Approval]:
+        """List approvals, optionally filtered by ``status`` (newest first)."""
+        return await self._repo.list(status=status)
 
     async def approve(self, approval_id: str, approver_id: str) -> Approval:
         approval = await self._repo.get(approval_id)

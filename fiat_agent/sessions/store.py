@@ -191,6 +191,18 @@ class SessionRepository:
     ) -> TaskSession | None:
         return await session.get(TaskSession, session_id)
 
+    async def list_sessions(
+        self, session, *, limit: int = 100
+    ) -> list[TaskSession]:
+        """All sessions ordered by most-recently-updated first."""
+        stmt = (
+            select(TaskSession)
+            .order_by(TaskSession.updated_at.desc())
+            .limit(limit)
+        )
+        rows = (await session.execute(stmt)).scalars().all()
+        return list(rows)
+
     async def append_event(
         self,
         session,
@@ -358,3 +370,9 @@ class SessionStore:
         return await self.get_event_path(
             session, session_id=session_id, event_id=ts.active_event_id
         )
+
+    async def list_sessions(
+        self, session, *, limit: int = 100
+    ) -> list[TaskSession]:
+        """All sessions, most-recently-updated first."""
+        return await self._repo.list_sessions(session, limit=limit)

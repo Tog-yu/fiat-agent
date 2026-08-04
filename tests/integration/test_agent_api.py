@@ -124,6 +124,17 @@ def test_create_session(client: TestClient) -> None:
 
 
 @pytest.mark.integration
+def test_list_sessions_includes_created(client: TestClient) -> None:
+    new = client.post("/api/agent/sessions", json={"title": "listed"})
+    sid = new.json()["session_id"]
+
+    r = client.get("/api/agent/sessions")
+    assert r.status_code == 200
+    sessions = r.json()["sessions"]
+    assert any(s["session_id"] == sid and s["title"] == "listed" for s in sessions)
+
+
+@pytest.mark.integration
 def test_send_message_and_events(client: TestClient) -> None:
     new = client.post("/api/agent/sessions", json={"title": "t"})
     sid = new.json()["session_id"]

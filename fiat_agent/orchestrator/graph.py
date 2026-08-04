@@ -35,6 +35,7 @@ from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END, START, StateGraph
 
 from fiat_agent.auth.policy import can_execute
+from fiat_agent.auth.rbac import load_tool_policies
 from fiat_agent.models.base import (
     ChatMessage,
     ChatRequest,
@@ -97,6 +98,7 @@ class AgentGraph:
         gateway: ToolGateway,
         model_gateway: ModelGateway,
         audit_service: Any = None,
+        approval_service: Any = None,
         session_writer: Optional[SessionWriter] = None,
         event_emitter: Optional[EventEmitter] = None,
     ) -> None:
@@ -104,6 +106,7 @@ class AgentGraph:
         self.gateway = gateway
         self.model_gateway = model_gateway
         self.audit_service = audit_service
+        self.approval_service = approval_service
         self.session_writer = session_writer
         self.event_emitter = event_emitter
         self._compiled = None
@@ -200,12 +203,18 @@ class AgentGraph:
         }
 
     async def _approval_step(self, state: GraphState) -> dict:
-        delta = await approval_node(state, plan=state.plan, audit_service=self.audit_service)
+        delta = await approval_node(
+            state,
+            plan=state.plan,
+            audit_service=self.audit_service,
+            approval_service=self.approval_service,
+        )
         await self._emit(
             "approval",
             {
                 "approval_state": delta.get("approval_state"),
                 "pending": delta.get("pending_approvals"),
+                "approval_id": delta.get("approval_id"),
             },
         )
         return delta
@@ -213,11 +222,34 @@ class AgentGraph:
     async def _tool_step(self, state: GraphState) -> dict:
         delta = await tool_node(state, self.gateway, context=None)
         results = delta.get("tool_results", [])
+        # Enrich with per-tool detail (arguments, status, risk, duration) so the
+        # web console tool-call trace (J3) and audit page (J6) can render richly.
+        policy_risk = {
+            name: p.risk_level for name, p in load_tool_policies().items()
+        }
+        recent = self.gateway.tool_calls[-len(results):] if self.gateway else []
+        calls = []
+        for r in results:
+            rec = next(
+                (x for x in reversed(recent) if x.tool_name == r.tool_name), None
+            )
+            calls.append(
+                {
+                    "tool_name": r.tool_name,
+                    "arguments": (rec.arguments if rec else {}),
+                    "status": r.status.value,
+                    "risk_level": policy_risk.get(r.tool_name),
+                    "duration_ms": (
+                        round(rec.duration_ms, 1) if rec is not None else None
+                    ),
+                }
+            )
         await self._emit(
             "tool_call",
             {
                 "tools": [r.tool_name for r in results],
                 "statuses": [r.status.value for r in results],
+                "calls": calls,
             },
         )
         return delta
