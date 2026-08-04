@@ -598,9 +598,9 @@ event_stream:
 | 阶段 G | 8 | [x] |
 | 阶段 H | 8 | [x] |
 | 阶段 I | 5 | [x] |
-| 阶段 J | 6 | [~] |
-| 阶段 K | 6 | [ ] |
-| 总计 | 71 | [ ] |
+| 阶段 J | 6 | [x] |
+| 阶段 K | 6 | [x] |
+| 总计 | 71 | [x] |
 
 ## 11. 分阶段任务清单
 
@@ -1459,7 +1459,7 @@ event_stream:
   - 参数摘要不可被页面篡改。
 - **测试方法**：Playwright 冒烟。
 
-### [ ] J6：审计查询页面
+### [x] J6：审计查询页面
 
 - **目标**：展示审计日志和工具统计。
 - **修改文件**：
@@ -1472,7 +1472,7 @@ event_stream:
 
 ## 阶段 K：Observability、Evaluation 和 E2E 收口
 
-### [ ] K1：Event Bus
+### [x] K1：Event Bus
 
 - **目标**：实现事件广播。
 - **修改文件**：
@@ -1483,7 +1483,7 @@ event_stream:
   - session event、tool event、approval event 都可广播。
 - **测试方法**：`pytest -q tests/unit/test_event_bus.py`。
 
-### [ ] K2：SSE / WebSocket
+### [x] K2：SSE / WebSocket
 
 - **目标**：对前端输出实时事件。
 - **修改文件**：
@@ -1495,7 +1495,7 @@ event_stream:
   - 断线重连可按 cursor 续传。
 - **测试方法**：`pytest -q tests/integration/test_event_stream.py`。
 
-### [ ] K3：Agent Trace
+### [x] K3：Agent Trace
 
 - **目标**：记录 agent 执行链路。
 - **修改文件**：
@@ -1507,7 +1507,7 @@ event_stream:
   - 可定位失败节点。
 - **测试方法**：`pytest -q tests/integration/test_agent_trace.py`。
 
-### [ ] K4：Agent Eval 数据集
+### [x] K4：Agent Eval 数据集
 
 - **目标**：建立最小评测集。
 - **修改文件**：
@@ -1518,7 +1518,7 @@ event_stream:
   - 输出稳定结构。
 - **测试方法**：`pytest -q tests/e2e/test_agent_eval.py`。
 
-### [ ] K5：端到端验收
+### [x] K5：端到端验收
 
 - **目标**：跑通 MVP 主链路。
 - **修改文件**：
@@ -1530,7 +1530,7 @@ event_stream:
   - 权限拒绝和审批等待通过。
 - **测试方法**：`pytest -q tests/e2e/test_mvp_flows.py`。
 
-### [ ] K6：README 和部署文档
+### [x] K6：README 和部署文档
 
 - **目标**：形成可复现项目。
 - **修改文件**：
