@@ -33,6 +33,8 @@ dependencies = [
     # Phase G8: LangGraph orchestrates the agent loop (classify -> plan -> tool ->
     # approval -> final). DEV_SPEC §2.3 mandates LangGraph for the Agent Loop.
     "langgraph>=1.0",
+    # Phase H5: parse rebate spreadsheets (.xlsx). CSV needs no extra dep.
+    "openpyxl>=3.1",
 ]
 
 # Optional extras — keep the base install lean.

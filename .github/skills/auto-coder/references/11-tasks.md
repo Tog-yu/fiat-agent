@@ -687,7 +687,7 @@
   - 仅测试环境可执行。
 - **测试方法**：`pytest -q tests/e2e/test_test_automation_workflow.py`。
 
-### [ ] H5：返现表格解析
+### [x] H5：返现表格解析
 
 - **目标**：解析 Excel/CSV 返现文件。
 - **修改文件**：
