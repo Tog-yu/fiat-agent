@@ -1,0 +1,4 @@
+interface:
+  display_name: "Fiat Agent Interview Prep"
+  short_description: "围绕 fiat-agent 源码与简历的真实模拟面试"
+  default_prompt: "Use $interview-prep to run a realistic mock interview about the fiat-agent project."

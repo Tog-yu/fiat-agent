@@ -1,0 +1,4 @@
+interface:
+  display_name: "Fiat Agent Project Learner"
+  short_description: "源码驱动学习 fiat-agent 的 45 个核心知识点"
+  default_prompt: "Use $project-learner to guide me through learning the fiat-agent codebase with project-specific questions."

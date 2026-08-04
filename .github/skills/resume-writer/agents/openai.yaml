@@ -1,0 +1,4 @@
+interface:
+  display_name: "Fiat Agent Resume Writer"
+  short_description: "生成真实可验证的 fiat-agent 项目简历经历"
+  default_prompt: "Use $resume-writer to draft a truthful, role-targeted resume project entry for fiat-agent."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Fiat Agent Project Review"
+  short_description: "按 10 章 70 题系统复习 fiat-agent 项目"
+  default_prompt: "Use $project-review to systematically review the fiat-agent project chapter by chapter."
