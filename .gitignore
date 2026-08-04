@@ -47,3 +47,6 @@ apps/web_console/.next/
 
 # Skill-generated spec hash (auto-coder re-writes it on every sync)
 .github/skills/auto-coder/.spec_hash
+
+# Agent local memory / working data
+.workbuddy/

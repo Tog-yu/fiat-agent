@@ -28,6 +28,7 @@ from fiat_agent.tool_gateway.cashback_tools import make_cashback_parse_handler
 from fiat_agent.tool_gateway.gateway import ToolGateway
 from fiat_agent.tools.function_calling import ToolResultStatus
 from fiat_agent.tools.registry import ToolRegistry
+from fiat_agent.workflows.production_submit import ProductionSubmitGuard
 
 # The read-only parse tool this workflow drives (DEV_SPEC §H5).
 PARSE_TOOL = "cashback_parse"
@@ -275,6 +276,33 @@ class CashbackReconcileWorkflow:
             f"对账总额 {s['total_amount']}。"
             f"is_dry_run=true，未做任何生产写入。"
         )
+
+    # --- phase-2 reserved interface (H8) ---------------------------------
+    async def submit(
+        self,
+        approval_id: str,
+        actor: ActorContext,
+        guard: ProductionSubmitGuard,
+        *,
+        params: Optional[dict[str, Any]] = None,
+    ) -> dict[str, Any]:
+        """Submit the reconciled plan to production (phase-2 reserved).
+
+        Gated by an approved ``Approval`` through :class:`ProductionSubmitGuard`.
+        In the MVP the guard is disabled by default, so this performs only a safe
+        fake stub unless the approval *and* explicit enablement are both
+        satisfied. Deterministic boundary per DEV_SPEC §2.2.6 (never LLM-driven).
+        """
+        result = await guard.submit(approval_id, actor, params=params or {})
+        await self._audit.record_event(
+            type="production_submit",
+            actor=actor,
+            tool_name="cashback_submit",
+            action="submit",
+            allowed=bool(result.get("submitted")),
+            metadata={"approval_id": approval_id, **result},
+        )
+        return result
 
 
 async def run_cashback_reconcile(

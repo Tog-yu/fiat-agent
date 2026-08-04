@@ -596,8 +596,8 @@ event_stream:
 | 阶段 E | 6 | [x] |
 | 阶段 F | 7 | [x] |
 | 阶段 G | 8 | [x] |
-| 阶段 H | 8 | [~] |
-| 阶段 I | 5 | [ ] |
+| 阶段 H | 8 | [x] |
+| 阶段 I | 5 | [~] |
 | 阶段 J | 6 | [ ] |
 | 阶段 K | 6 | [ ] |
 | 总计 | 71 | [ ] |
@@ -1313,7 +1313,7 @@ event_stream:
   - 只生成 dry-run，不生产写入。
 - **测试方法**：`pytest -q tests/e2e/test_cashback_reconcile_workflow.py`。
 
-### [ ] H7：物流表格解析和状态机
+### [x] H7：物流表格解析和状态机
 
 - **目标**：实现物流字段校验和状态流转校验。
 - **修改文件**：
@@ -1325,7 +1325,7 @@ event_stream:
   - 地址、单号、卡号异常可识别。
 - **测试方法**：`pytest -q tests/unit/test_logistics_state_machine.py`。
 
-### [ ] H8：审批后执行占位
+### [x] H8：审批后执行占位
 
 - **目标**：为第二阶段生产提交预留接口。
 - **修改文件**：
@@ -1339,7 +1339,7 @@ event_stream:
 
 ## 阶段 I：Entry Adapters
 
-### [ ] I1：FastAPI Agent API
+### [x] I1：FastAPI Agent API
 
 - **目标**：实现会话和消息 API。
 - **修改文件**：

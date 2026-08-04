@@ -51,6 +51,12 @@ policies:
     allowed_environments: [dev, staging, prod]
     allowed_scopes: [lark_notify]
 
+  - tool: logistics_validate        # 物流表格校验（只读，不写生产）
+    risk_level: L1
+    allowed_roles: [oncall, ops, viewer]
+    allowed_environments: [dev, staging, prod]
+    allowed_scopes: [logistics_readonly]
+
   - tool: test_env                  # 测试环境自动化（仅 DEV）
     risk_level: L3
     allowed_roles: [oncall, ops]

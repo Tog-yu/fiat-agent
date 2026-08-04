@@ -90,6 +90,10 @@ class ApprovalService:
         await self._repo.add(approval)
         return approval
 
+    async def get(self, approval_id: str) -> Optional[Approval]:
+        """Look up an approval by id (read-only; used by the submit guard)."""
+        return await self._repo.get(approval_id)
+
     async def approve(self, approval_id: str, approver_id: str) -> Approval:
         approval = await self._repo.get(approval_id)
         if approval is None:

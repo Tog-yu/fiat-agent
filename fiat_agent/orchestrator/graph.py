@@ -285,8 +285,18 @@ class AgentGraph:
         messages: list[ChatMessage],
         session_id: str = "",
         config: Optional[dict] = None,
+        session_writer: Optional[SessionWriter] = None,
+        event_emitter: Optional[EventEmitter] = None,
     ) -> GraphState:
-        """Run one agent turn end-to-end and return the final :class:`GraphState`."""
+        """Run one agent turn end-to-end and return the final :class:`GraphState`.
+
+        ``session_writer`` / ``event_emitter`` are accepted per-run (in addition
+        to the instance-level callbacks set at construction) so a single shared
+        :class:`AgentGraph` can stream events into different destinations per
+        session — e.g. the FastAPI API writes each run's events into that
+        session's append-only event store (phase I1). When omitted, the
+        instance-level callbacks are used.
+        """
         graph = self._get_graph()
         thread_id = session_id or uuid4().hex
         cfg = config or {"configurable": {"thread_id": thread_id}}
@@ -295,7 +305,17 @@ class AgentGraph:
             "messages": messages,
             "session_id": session_id,
         }
-        result = await graph.ainvoke(inputs, config=cfg, recursion_limit=25)
+        # Per-run observer overrides, restored afterwards so the shared instance
+        # keeps its construction-time callbacks for other callers.
+        prev_writer, prev_emitter = self.session_writer, self.event_emitter
+        if session_writer is not None:
+            self.session_writer = session_writer
+        if event_emitter is not None:
+            self.event_emitter = event_emitter
+        try:
+            result = await graph.ainvoke(inputs, config=cfg, recursion_limit=25)
+        finally:
+            self.session_writer, self.event_emitter = prev_writer, prev_emitter
         try:
             return GraphState(**result)
         except Exception:  # noqa: BLE001 - fall back to the raw state dict
