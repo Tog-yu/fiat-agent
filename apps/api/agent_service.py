@@ -25,6 +25,7 @@ from fiat_agent.models.gateway import ModelGateway
 from fiat_agent.orchestrator.graph import AgentGraph
 from fiat_agent.orchestrator.state import ApprovalState
 from fiat_agent.approvals.service import ApprovalService
+from fiat_agent.audit.service import AuditService
 from fiat_agent.schemas.common import ActorContext, TaskType
 from fiat_agent.sessions.store import SessionStore
 from fiat_agent.tools.registry import ToolRegistry
@@ -342,6 +343,8 @@ async def build_agent_service(
         model_gateway=model_gateway,
         audit_service=audit,
         approval_service=approval,
+        # Persist an agent-trace entry per node (DEV_SPEC §K3).
+        trace_sink=lambda record: audit.record_trace(**record),
     )
     return AgentService(store=store, graph=graph, engine=engine)
 
@@ -390,3 +393,20 @@ async def get_approval_service() -> ApprovalService:
         svc = await get_agent_service()
         _approval_service = svc.graph.approval_service
     return _approval_service
+
+
+_audit_service: "AuditService | None" = None  # noqa: F821  (imported below)
+
+
+async def get_audit_service() -> "AuditService":  # noqa: F821
+    """FastAPI dependency returning the process-wide :class:`AuditService`.
+
+    Shares the instance the agent graph uses, so the web console sees the same
+    audit trail. Tests override this via
+    ``app.dependency_overrides[get_audit_service]``.
+    """
+    global _audit_service
+    if _audit_service is None:
+        svc = await get_agent_service()
+        _audit_service = svc.graph.audit_service
+    return _audit_service

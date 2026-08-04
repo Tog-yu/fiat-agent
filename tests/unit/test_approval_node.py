@@ -73,11 +73,19 @@ def test_low_risk_only_needs_no_approval() -> None:
 @pytest.mark.unit
 def test_plan_required_tools_also_flagged() -> None:
     # plan not yet in messages; node reads required_tools from the plan object.
+    # cashback_reconcile is allowed for ops AND approval-required -> flagged.
+    # db_query is allowed but low-risk -> not flagged. A denied tool (e.g.
+    # cashback_submit, not permitted for ops) must NOT be sent for approval.
     state = AgentState(actor=_actor())
-    plan = type("P", (), {"required_tools": ["db_query", "cashback_submit"]})()
+    plan = type(
+        "P",
+        (),
+        {"required_tools": ["db_query", "cashback_reconcile", "cashback_submit"]},
+    )()
     audit = FakeAudit()
     delta = asyncio.run(approval_node(state, plan=plan, audit_service=audit))
 
     assert delta["approval_state"] == ApprovalState.PENDING
-    assert "cashback_submit" in delta["pending_approvals"]
+    assert "cashback_reconcile" in delta["pending_approvals"]
     assert "db_query" not in delta["pending_approvals"]
+    assert "cashback_submit" not in delta["pending_approvals"]

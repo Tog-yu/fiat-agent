@@ -87,6 +87,11 @@ class GraphState(AgentState):
 SessionWriter = Callable[[str, dict[str, Any]], Awaitable[None]]
 EventEmitter = Callable[[str, dict[str, Any]], Awaitable[None]]
 
+# Trace sink records one dict per node invocation; see ``record_trace`` in
+# :mod:`fiat_agent.audit.service`. Keys: session_id, actor_id, round, step,
+# node, status, detail.
+TraceSink = Callable[[dict[str, Any]], Awaitable[None]]
+
 
 class AgentGraph:
     """Builds and runs the complete fiat-agent LangGraph."""
@@ -101,6 +106,7 @@ class AgentGraph:
         approval_service: Any = None,
         session_writer: Optional[SessionWriter] = None,
         event_emitter: Optional[EventEmitter] = None,
+        trace_sink: Optional[TraceSink] = None,
     ) -> None:
         self.registry = registry
         self.gateway = gateway
@@ -109,34 +115,50 @@ class AgentGraph:
         self.approval_service = approval_service
         self.session_writer = session_writer
         self.event_emitter = event_emitter
+        self.trace_sink = trace_sink
         self._compiled = None
+        # Per-run trace context (set in arun); round increments per model call.
+        self._round = 0
+        self._trace_session = ""
+        self._trace_actor = ""
 
     # --- node steps ----------------------------------------------------
 
     async def _classify_step(self, state: GraphState) -> dict:
-        delta = classify_node(state)
-        await self._emit("classify", {"task_type": delta.get("task_type")})
-        return delta
+        async def work():
+            delta = classify_node(state)
+            await self._emit("classify", {"task_type": delta.get("task_type")})
+            return delta
+
+        return await self._run_traced("classify", "classify", work())
 
     async def _build_context_step(self, state: GraphState) -> dict:
-        return build_context_node(state, self.registry)
+        async def work():
+            return build_context_node(state, self.registry)
+
+        return await self._run_traced("build_context", "build_context", work())
 
     async def _model_step(self, state: GraphState) -> dict:
-        request = self._build_request(state)
-        task_type = state.task_type.value if state.task_type else None
-        response: ChatResponse = await self.model_gateway.function_call(
-            request, task_type=task_type
-        )
-        assistant = self._response_to_message(response)
-        await self._emit(
-            "model_call",
-            {
-                "finish_reason": response.finish_reason,
-                "has_tool_calls": bool(assistant.tool_calls),
-                "usage": response.usage.model_dump() if response.usage else None,
-            },
-        )
-        return {"messages": [assistant]}
+        self._round += 1  # each model call starts a new ReAct round
+
+        async def work():
+            request = self._build_request(state)
+            task_type = state.task_type.value if state.task_type else None
+            response: ChatResponse = await self.model_gateway.function_call(
+                request, task_type=task_type
+            )
+            assistant = self._response_to_message(response)
+            await self._emit(
+                "model_call",
+                {
+                    "finish_reason": response.finish_reason,
+                    "has_tool_calls": bool(assistant.tool_calls),
+                    "usage": response.usage.model_dump() if response.usage else None,
+                },
+            )
+            return {"messages": [assistant]}
+
+        return await self._run_traced("model_call", "model", work())
 
     def _build_request(self, state: GraphState) -> ChatRequest:
         system = ChatMessage(role="system", content=state.system_prompt or "")
@@ -157,20 +179,25 @@ class AgentGraph:
         return ChatMessage(role="assistant", content=response.content, tool_calls=tool_calls)
 
     async def _plan_step(self, state: GraphState) -> dict:
-        available = {
-            t.name
-            for t in self.registry.filter(state.actor, environment=state.actor.environment)
-        }
-        delta = plan_node(state, self._derive_plan, available_tools=available)
-        plan = delta.get("plan")
-        await self._emit(
-            "plan",
-            {
-                "plan_status": delta.get("plan_status"),
-                "required_tools": list(plan.required_tools) if plan else [],
-            },
-        )
-        return delta
+        async def work():
+            available = {
+                t.name
+                for t in self.registry.filter(
+                    state.actor, environment=state.actor.environment
+                )
+            }
+            delta = plan_node(state, self._derive_plan, available_tools=available)
+            plan = delta.get("plan")
+            await self._emit(
+                "plan",
+                {
+                    "plan_status": delta.get("plan_status"),
+                    "required_tools": list(plan.required_tools) if plan else [],
+                },
+            )
+            return delta
+
+        return await self._run_traced("plan", "plan", work())
 
     def _derive_plan(self, state: GraphState) -> Optional[dict]:
         """Deterministic planner: derive a structured plan from the model's pending tool calls.
@@ -203,70 +230,143 @@ class AgentGraph:
         }
 
     async def _approval_step(self, state: GraphState) -> dict:
-        delta = await approval_node(
-            state,
-            plan=state.plan,
-            audit_service=self.audit_service,
-            approval_service=self.approval_service,
-        )
-        await self._emit(
-            "approval",
-            {
-                "approval_state": delta.get("approval_state"),
-                "pending": delta.get("pending_approvals"),
-                "approval_id": delta.get("approval_id"),
-            },
-        )
-        return delta
+        async def work():
+            delta = await approval_node(
+                state,
+                plan=state.plan,
+                audit_service=self.audit_service,
+                approval_service=self.approval_service,
+            )
+            await self._emit(
+                "approval",
+                {
+                    "approval_state": delta.get("approval_state"),
+                    "pending": delta.get("pending_approvals"),
+                    "approval_id": delta.get("approval_id"),
+                },
+            )
+            return delta
+
+        return await self._run_traced("approval", "approval", work())
 
     async def _tool_step(self, state: GraphState) -> dict:
-        delta = await tool_node(state, self.gateway, context=None)
-        results = delta.get("tool_results", [])
-        # Enrich with per-tool detail (arguments, status, risk, duration) so the
-        # web console tool-call trace (J3) and audit page (J6) can render richly.
-        policy_risk = {
-            name: p.risk_level for name, p in load_tool_policies().items()
-        }
-        recent = self.gateway.tool_calls[-len(results):] if self.gateway else []
-        calls = []
-        for r in results:
-            rec = next(
-                (x for x in reversed(recent) if x.tool_name == r.tool_name), None
-            )
-            calls.append(
-                {
-                    "tool_name": r.tool_name,
-                    "arguments": (rec.arguments if rec else {}),
-                    "status": r.status.value,
-                    "risk_level": policy_risk.get(r.tool_name),
-                    "duration_ms": (
-                        round(rec.duration_ms, 1) if rec is not None else None
-                    ),
+        def _tool_status(delta: dict) -> tuple[str, dict]:
+            """Mark the tool node as failed when any tool reported an error."""
+            results = delta.get("tool_results", [])
+            failed = [
+                r
+                for r in results
+                if getattr(r.status, "value", r.status) != "success"
+            ]
+            if failed:
+                return "error", {
+                    "failed_tools": [r.tool_name for r in failed],
+                    "errors": [getattr(r, "error", None) for r in failed],
                 }
+            return "ok", None
+
+        async def work():
+            delta = await tool_node(state, self.gateway, context=None)
+            results = delta.get("tool_results", [])
+            # Enrich with per-tool detail (arguments, status, risk, duration) so the
+            # web console tool-call trace (J3) and audit page (J6) can render richly.
+            policy_risk = {
+                name: p.risk_level for name, p in load_tool_policies().items()
+            }
+            recent = self.gateway.tool_calls[-len(results):] if self.gateway else []
+            calls = []
+            for r in results:
+                rec = next(
+                    (x for x in reversed(recent) if x.tool_name == r.tool_name), None
+                )
+                calls.append(
+                    {
+                        "tool_name": r.tool_name,
+                        "arguments": (rec.arguments if rec else {}),
+                        "status": r.status.value,
+                        "risk_level": policy_risk.get(r.tool_name),
+                        "duration_ms": (
+                            round(rec.duration_ms, 1) if rec is not None else None
+                        ),
+                    }
+                )
+            await self._emit(
+                "tool_call",
+                {
+                    "tools": [r.tool_name for r in results],
+                    "statuses": [r.status.value for r in results],
+                    "calls": calls,
+                },
             )
-        await self._emit(
-            "tool_call",
-            {
-                "tools": [r.tool_name for r in results],
-                "statuses": [r.status.value for r in results],
-                "calls": calls,
-            },
-        )
-        return delta
+            return delta
+
+        return await self._run_traced("tool_call", "tool", work(), status_fn=_tool_status)
 
     async def _final_step(self, state: GraphState) -> dict:
-        # For RAG answers the answer text is carried by the tool result; final_node
-        # renders tool_results when no explicit rag_context is supplied.
-        delta = final_node(state, rag_context=None)
-        await self._emit("final", {"answer": (delta.get("final_answer") or "")[:200]})
-        await self._emit("session_final", {"final_answer": delta.get("final_answer")})
-        return delta
+        async def work():
+            # For RAG answers the answer text is carried by the tool result;
+            # final_node renders tool_results when no explicit rag_context is set.
+            delta = final_node(state, rag_context=None)
+            await self._emit("final", {"answer": (delta.get("final_answer") or "")[:200]})
+            await self._emit("session_final", {"final_answer": delta.get("final_answer")})
+            return delta
+
+        return await self._run_traced("final", "final", work())
 
     async def _emit(self, event_type: str, payload: dict[str, Any]) -> None:
         if self.session_writer is not None:
             await self.session_writer(event_type, payload)
         if self.event_emitter is not None:
             await self.event_emitter(event_type, payload)
+
+    async def _trace(
+        self,
+        step: str,
+        node: str,
+        status: str,
+        detail: dict[str, Any] | None = None,
+    ) -> None:
+        """Record one agent-trace step (DEV_SPEC §K3), if a sink is wired."""
+        if self.trace_sink is None:
+            return
+        await self.trace_sink(
+            {
+                "session_id": self._trace_session,
+                "actor_id": self._trace_actor,
+                "round": self._round,
+                "step": step,
+                "node": node,
+                "status": status,
+                "detail": detail or {},
+            }
+        )
+
+    async def _run_traced(
+        self,
+        step: str,
+        node: str,
+        coro,
+        status_fn=None,
+    ):
+        """Run a node coroutine, recording ok/error in the agent trace.
+
+        ``status_fn(result) -> (status, detail)`` lets a node declare a
+        logical failure even when it returns normally (e.g. a tool that
+        completed but reported an error result), so the failed node stays
+        locatable (DEV_SPEC §K3). On an raised exception, ``error`` is recorded
+        and the exception re-raised for normal propagation.
+        """
+        try:
+            result = await coro
+            if status_fn is not None:
+                status, detail = status_fn(result)
+            else:
+                status, detail = "ok", None
+            await self._trace(step, node, status, detail)
+            return result
+        except Exception as e:  # noqa: BLE001 - record then propagate
+            await self._trace(step, node, "error", {"error": str(e)})
+            raise
 
     # --- routing -------------------------------------------------------
 
@@ -319,6 +419,7 @@ class AgentGraph:
         config: Optional[dict] = None,
         session_writer: Optional[SessionWriter] = None,
         event_emitter: Optional[EventEmitter] = None,
+        trace_sink: Optional[TraceSink] = None,
     ) -> GraphState:
         """Run one agent turn end-to-end and return the final :class:`GraphState`.
 
@@ -339,15 +440,29 @@ class AgentGraph:
         }
         # Per-run observer overrides, restored afterwards so the shared instance
         # keeps its construction-time callbacks for other callers.
-        prev_writer, prev_emitter = self.session_writer, self.event_emitter
+        prev_writer, prev_emitter, prev_trace = (
+            self.session_writer,
+            self.event_emitter,
+            self.trace_sink,
+        )
         if session_writer is not None:
             self.session_writer = session_writer
         if event_emitter is not None:
             self.event_emitter = event_emitter
+        if trace_sink is not None:
+            self.trace_sink = trace_sink
+        # Reset per-run trace context.
+        self._round = 0
+        self._trace_session = session_id
+        self._trace_actor = actor.actor_id if actor else ""
         try:
             result = await graph.ainvoke(inputs, config=cfg, recursion_limit=25)
         finally:
-            self.session_writer, self.event_emitter = prev_writer, prev_emitter
+            self.session_writer, self.event_emitter, self.trace_sink = (
+                prev_writer,
+                prev_emitter,
+                prev_trace,
+            )
         try:
             return GraphState(**result)
         except Exception:  # noqa: BLE001 - fall back to the raw state dict

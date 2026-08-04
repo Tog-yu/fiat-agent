@@ -144,6 +144,39 @@ class AuditService:
             },
         )
 
+    async def record_trace(
+        self,
+        *,
+        session_id: str,
+        actor_id: str = "",
+        round: int,
+        step: str,
+        node: str,
+        status: str,
+        detail: dict | None = None,
+    ) -> AuditEvent:
+        """Record one step of an agent execution trace (DEV_SPEC §K3).
+
+        The orchestrator emits one trace entry per node invocation with its
+        ``round`` (ReAct loop index), ``step`` category (``plan`` /
+        ``model_call`` / ``tool_call`` / ``final`` / ...), ``node`` name and
+        ``status`` (``ok`` / ``error``). Persisted under the ``agent_trace``
+        event type so a run's full chain can be reconstructed and a failed
+        node located after the fact.
+        """
+        return await self.record_event(
+            type="agent_trace",
+            actor_id=actor_id,
+            metadata={
+                "session_id": session_id,
+                "round": round,
+                "step": step,
+                "node": node,
+                "status": status,
+                "detail": detail or {},
+            },
+        )
+
     async def usage_by_task(self, task_type: str) -> TokenUsage:
         """Aggregate token usage for a task across all recorded model calls."""
         events = await self._repo.list(limit=1_000_000)
@@ -162,3 +195,39 @@ class AuditService:
             completion_tokens=completion,
             total_tokens=total,
         )
+
+    async def query(
+        self,
+        *,
+        actor_id: Optional[str] = None,
+        tool_name: Optional[str] = None,
+        risk_level: Optional[str] = None,
+        type: Optional[str] = None,
+        from_ts: Optional[datetime] = None,
+        to_ts: Optional[datetime] = None,
+        limit: int = 200,
+    ) -> list[AuditEvent]:
+        """Filterable audit log query (DEV_SPEC §J6).
+
+        All filters are optional; results are newest-first and capped by
+        ``limit``. Mirrors the in-Python filtering used by :meth:`usage_by_task`
+        (the in-memory repo has no secondary-index query API yet).
+        """
+        events = await self._repo.list(limit=10_000_000)
+        out: list[AuditEvent] = []
+        for e in events:
+            if actor_id is not None and e.actor_id != actor_id:
+                continue
+            if tool_name is not None and e.tool_name != tool_name:
+                continue
+            if risk_level is not None and e.risk_level != risk_level:
+                continue
+            if type is not None and e.type != type:
+                continue
+            if from_ts is not None and e.timestamp < from_ts:
+                continue
+            if to_ts is not None and e.timestamp > to_ts:
+                continue
+            out.append(e)
+        out.sort(key=lambda e: e.timestamp, reverse=True)
+        return out[:limit]

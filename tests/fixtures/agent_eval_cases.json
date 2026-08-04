@@ -1,0 +1,58 @@
+[
+  {
+    "id": "eval-rag-001",
+    "category": "rag",
+    "task_type": "rag_qa",
+    "input": "知识库里怎么规定的人民币跨境结算？",
+    "actor": { "actor_id": "u_oncall", "roles": ["oncall"], "environment": "dev" },
+    "tool": "rag_query",
+    "final_answer": "根据知识库，人民币跨境结算规定见第三章。",
+    "expect": {
+      "outcome": "answered",
+      "approval_state": "not_required",
+      "tool_executed": "rag_query"
+    }
+  },
+  {
+    "id": "eval-alert-001",
+    "category": "alert",
+    "task_type": "alert_diagnosis",
+    "input": "生产告警日志显示支付失败率升高，帮我排查一下。",
+    "actor": { "actor_id": "u_oncall", "roles": ["oncall"], "environment": "dev" },
+    "tool": "es_query",
+    "final_answer": "根据ES日志与RAG知识库，支付失败率升高源于下游通道超时，建议扩大超时阈值并复核重试策略。",
+    "expect": {
+      "outcome": "answered",
+      "approval_state": "not_required",
+      "tool_executed": "es_query"
+    }
+  },
+  {
+    "id": "eval-deny-001",
+    "category": "deny",
+    "task_type": "test_env_automation",
+    "input": "帮我向生产数据库提交一条记录（测试数据）。",
+    "actor": { "actor_id": "u_oncall", "roles": ["oncall"], "environment": "dev" },
+    "tool": "cashback_submit",
+    "final_answer": "抱歉，您当前角色没有权限执行该生产提交操作。",
+    "expect": {
+      "outcome": "denied",
+      "approval_state": "not_required",
+      "tool_executed": null
+    }
+  },
+  {
+    "id": "eval-approve-001",
+    "category": "approve",
+    "task_type": "cashback_reconcile",
+    "input": "帮我做一次返现对账 dry-run。",
+    "actor": { "actor_id": "u_ops", "roles": ["ops"], "environment": "dev" },
+    "tool": "cashback_reconcile",
+    "final_answer": "已生成返现对账 dry-run 报告，等待审批后执行。",
+    "expect": {
+      "outcome": "approval_pending",
+      "approval_state": "pending",
+      "tool_executed": null
+    }
+  }
+]

@@ -60,6 +60,10 @@ async def approval_node(
     max_risk: RiskLevel = RiskLevel.L1
     for name in names:
         decision = can_execute(state.actor, name)
+        # A denied tool is never sent for approval — the ToolGateway enforces the
+        # denial at execution time. Only allowed tools can require approval.
+        if not decision.allowed:
+            continue
         if decision.approval_required or (decision.risk_level in _HIGH_RISK):
             required.append(name)
             params[name] = _candidate_args(state, name)
