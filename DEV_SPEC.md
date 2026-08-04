@@ -1351,7 +1351,7 @@ event_stream:
   - `GET /api/agent/sessions/:id/events`
 - **测试方法**：`pytest -q tests/integration/test_agent_api.py`。
 
-### [ ] I2：RAG 代理 API
+### [x] I2：RAG 代理 API
 
 - **目标**：暴露 RAG MCP 代理接口。
 - **修改文件**：

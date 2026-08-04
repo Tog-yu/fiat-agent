@@ -166,6 +166,28 @@ class RagMcpClient:
             arguments["collection"] = collection
         return await self.call_tool("query_knowledge_hub", arguments)
 
+    async def list_collections(self, include_stats: bool = True) -> list[Any]:
+        """List the knowledge-base collections (wraps `list_collections` MCP tool).
+
+        Args:
+            include_stats: when True, include per-collection document counts.
+        """
+        return await self.call_tool("list_collections", {"include_stats": include_stats})
+
+    async def get_document_summary(
+        self, doc_id: str, collection: str | None = None
+    ) -> list[Any]:
+        """Fetch a document summary (wraps `get_document_summary` MCP tool).
+
+        Args:
+            doc_id: the document id (full id or hash portion).
+            collection: optional collection name to narrow the lookup.
+        """
+        arguments: dict[str, Any] = {"doc_id": doc_id}
+        if collection is not None:
+            arguments["collection"] = collection
+        return await self.call_tool("get_document_summary", arguments)
+
     async def close(self) -> None:
         """Terminate the session and the server subprocess if still running."""
         if self._session_cm is not None:
