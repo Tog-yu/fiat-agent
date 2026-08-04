@@ -664,7 +664,7 @@
   - 无依据时拒答。
 - **测试方法**：`pytest -q tests/e2e/test_rag_qa_workflow.py`。
 
-### [ ] H3：告警诊断 workflow
+### [x] H3：告警诊断 workflow
 
 - **目标**：实现告警日志排查。
 - **修改文件**：

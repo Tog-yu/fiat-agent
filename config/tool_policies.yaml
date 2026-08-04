@@ -38,3 +38,9 @@ policies:
     allowed_roles: [oncall, ops, viewer]
     allowed_environments: [dev, staging, prod]
     allowed_scopes: [rag]
+
+  - tool: lark_notify               # Lark 告警通知（非破坏性）
+    risk_level: L2
+    allowed_roles: [oncall, ops]
+    allowed_environments: [dev, staging, prod]
+    allowed_scopes: [lark_notify]
